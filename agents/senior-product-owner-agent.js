@@ -386,6 +386,105 @@ class SeniorProductOwnerAgent {
     }];
   }
 
+  // Align design requirements with product requirements
+  async alignDesignWithProduct(productRequirements, designerInput) {
+    console.log('🤝 Aligning design with product requirements...');
+    
+    const aligned = {
+      ...productRequirements,
+      designAlignment: {
+        userPersonas: designerInput.userPersonas,
+        userJourney: designerInput.userJourney,
+        designGoals: designerInput.designGoals,
+        designBrief: designerInput.designBrief
+      },
+      enhancedFeatures: this.enhanceFeaturesWithDesign(
+        productRequirements.coreFeatures,
+        designerInput.designGoals
+      ),
+      userExperienceGoals: this.defineUXGoals(
+        productRequirements.businessGoals,
+        designerInput.designGoals
+      )
+    };
+    
+    return aligned;
+  }
+
+  // Enhance features based on design input
+  enhanceFeaturesWithDesign(coreFeatures, designGoals) {
+    return coreFeatures.map(feature => ({
+      ...feature,
+      designConsiderations: this.getDesignConsiderations(feature.feature),
+      userImpact: this.assessUserImpact(feature.feature),
+      designPriority: this.calculateDesignPriority(feature.feature, designGoals)
+    }));
+  }
+
+  // Get design considerations for a feature
+  getDesignConsiderations(featureName) {
+    const considerations = {
+      'User Authentication': ['Security indicators', 'Trust building', 'Clear error messages'],
+      'Profile Management': ['Photo upload UX', 'Form design', 'Privacy controls'],
+      'Messaging System': ['Real-time feedback', 'Thread organization', 'Media sharing'],
+      'Search & Filters': ['Filter interface', 'Results layout', 'Loading states'],
+      'Payment Processing': ['Security reassurance', 'Clear pricing', 'Error handling']
+    };
+    
+    return considerations[featureName] || ['User-friendly interface', 'Clear navigation', 'Responsive design'];
+  }
+
+  // Assess user impact of feature
+  assessUserImpact(featureName) {
+    const impacts = {
+      'User Authentication': 'Critical - enables all other features',
+      'Profile Management': 'High - core user identity and expression',
+      'Messaging System': 'High - primary interaction method',
+      'Search & Filters': 'High - core discovery mechanism',
+      'Payment Processing': 'Medium - monetization feature'
+    };
+    
+    return impacts[featureName] || 'Medium - enhances user experience';
+  }
+
+  // Calculate design priority based on feature and design goals
+  calculateDesignPriority(featureName, designGoals) {
+    const baseScore = {
+      'User Authentication': 10,
+      'Profile Management': 9,
+      'Messaging System': 8,
+      'Search & Filters': 7,
+      'Payment Processing': 6
+    };
+    
+    const score = baseScore[featureName] || 5;
+    return score > 7 ? 'High' : score > 4 ? 'Medium' : 'Low';
+  }
+
+  // Define UX goals based on business and design goals
+  defineUXGoals(businessGoals, designGoals) {
+    return {
+      primary: [
+        'Intuitive and learnable interface',
+        'Fast task completion',
+        'Delightful user interactions',
+        'Accessible to all users'
+      ],
+      secondary: [
+        'Reduced cognitive load',
+        'Clear information hierarchy',
+        'Consistent design patterns',
+        'Error prevention and recovery'
+      ],
+      metrics: [
+        'Task completion rate',
+        'Time to complete key actions',
+        'User satisfaction scores',
+        'Error rate reduction'
+      ]
+    };
+  }
+
   // Extract demographic clues from user description
   extractDemographicClues(description) {
     const clues = {
@@ -733,6 +832,247 @@ class SeniorProductOwnerAgent {
       userTesting: '$500 - $2,000',
       total: `$${totalWeeks * 500 + 3500} - $${totalWeeks * 1000 + 10000}`
     };
+  }
+
+  // Define business goals based on user description
+  async defineBusinessGoals(userDescription) {
+    const appType = this.detectAppType(userDescription);
+    
+    const goalTemplates = {
+      'dating': {
+        primary: ['Increase user engagement and retention', 'Build a safe dating community', 'Generate revenue through premium features'],
+        secondary: ['Improve match quality', 'Reduce fake profiles', 'Expand user base'],
+        metrics: ['Monthly Active Users (MAU)', 'Match success rate', 'User retention rate', 'Revenue per user']
+      },
+      'ecommerce': {
+        primary: ['Increase conversion rates', 'Improve customer satisfaction', 'Drive revenue growth'],
+        secondary: ['Reduce cart abandonment', 'Enhance user experience', 'Build brand loyalty'],
+        metrics: ['Conversion rate', 'Average order value', 'Customer lifetime value', 'Return customer rate']
+      },
+      'productivity': {
+        primary: ['Improve user productivity', 'Increase feature adoption', 'Drive user engagement'],
+        secondary: ['Reduce task completion time', 'Enhance collaboration', 'Streamline workflows'],
+        metrics: ['Task completion rate', 'Daily active users', 'Feature usage', 'User satisfaction score']
+      }
+    };
+    
+    return goalTemplates[appType] || goalTemplates['productivity'];
+  }
+
+  // Assess technical requirements
+  async assessTechnicalRequirements(userDescription) {
+    const appType = this.detectAppType(userDescription);
+    
+    const techRequirements = {
+      'dating': {
+        frontend: ['React Native', 'TypeScript', 'Expo'],
+        backend: ['Node.js', 'Express.js', 'MongoDB'],
+        realtime: ['Socket.io', 'Push notifications'],
+        security: ['JWT authentication', 'Data encryption', 'Photo verification'],
+        hosting: ['Railway', 'MongoDB Atlas', 'AWS S3']
+      },
+      'ecommerce': {
+        frontend: ['React', 'TypeScript', 'Tailwind CSS'],
+        backend: ['Node.js', 'Express.js', 'PostgreSQL'],
+        payments: ['Stripe', 'PayPal'],
+        security: ['PCI compliance', 'SSL certificates'],
+        hosting: ['Railway', 'CloudFlare', 'AWS']
+      },
+      'productivity': {
+        frontend: ['React', 'TypeScript', 'Material-UI'],
+        backend: ['Node.js', 'Express.js', 'MongoDB'],
+        integrations: ['Google Workspace', 'Slack API'],
+        security: ['OAuth 2.0', 'Role-based access'],
+        hosting: ['Railway', 'MongoDB Atlas']
+      }
+    };
+    
+    return techRequirements[appType] || techRequirements['productivity'];
+  }
+
+  // Analyze market opportunity
+  async analyzeMarketOpportunity(userDescription) {
+    const appType = this.detectAppType(userDescription);
+    
+    const marketData = {
+      'dating': {
+        marketSize: '$8.2 billion globally',
+        growth: '5.1% CAGR',
+        keyTrends: ['Video dating', 'AI matching', 'Safety features', 'Niche communities'],
+        competition: ['Tinder', 'Bumble', 'Hinge', 'Local players'],
+        opportunity: 'Romanian market underserved for serious relationships'
+      },
+      'ecommerce': {
+        marketSize: '$5.7 trillion globally',
+        growth: '8.8% CAGR',
+        keyTrends: ['Mobile commerce', 'Social commerce', 'Sustainability', 'Personalization'],
+        competition: ['Amazon', 'Local marketplaces', 'Specialized retailers'],
+        opportunity: 'Niche markets and specialized products'
+      },
+      'productivity': {
+        marketSize: '$96.3 billion globally',
+        growth: '13.4% CAGR',
+        keyTrends: ['Remote work tools', 'AI automation', 'Integration platforms', 'Mobile-first'],
+        competition: ['Microsoft 365', 'Google Workspace', 'Notion', 'Slack'],
+        opportunity: 'Specialized workflows and team collaboration'
+      }
+    };
+    
+    return marketData[appType] || marketData['productivity'];
+  }
+
+  // Perform competitive analysis
+  async performCompetitiveAnalysis(userDescription) {
+    const appType = this.detectAppType(userDescription);
+    
+    const competitorData = {
+      'dating': {
+        direct: ['Tinder', 'Bumble', 'Hinge'],
+        indirect: ['POF', 'Match.com', 'OkCupid'],
+        strengths: ['Large user base', 'Brand recognition', 'Advanced algorithms'],
+        weaknesses: ['Safety concerns', 'Superficial matching', 'Premium pricing'],
+        opportunities: ['Romanian market focus', 'Serious relationships niche', 'Enhanced safety']
+      },
+      'ecommerce': {
+        direct: ['Amazon', 'eBay', 'Local marketplaces'],
+        indirect: ['Social commerce', 'Direct-to-consumer brands'],
+        strengths: ['Vast selection', 'Fast delivery', 'Trust'],
+        weaknesses: ['Impersonal experience', 'High competition', 'Complex navigation'],
+        opportunities: ['Niche specialization', 'Personal service', 'Local focus']
+      },
+      'productivity': {
+        direct: ['Notion', 'Asana', 'Trello'],
+        indirect: ['Microsoft Teams', 'Slack', 'Google Workspace'],
+        strengths: ['Feature completeness', 'Integration capabilities', 'User base'],
+        weaknesses: ['Complexity', 'Learning curve', 'Generic solutions'],
+        opportunities: ['Specialized workflows', 'Simplicity', 'Industry focus']
+      }
+    };
+    
+    return competitorData[appType] || competitorData['productivity'];
+  }
+
+  // Generate user stories
+  async generateUserStories(userDescription) {
+    const coreFeatures = await this.extractCoreFeatures(userDescription);
+    const appType = this.detectAppType(userDescription);
+    const targetAudience = await this.identifyTargetAudience(userDescription);
+    const stories = [];
+    
+    coreFeatures.forEach(feature => {
+      const featureStories = this.generateStoriesForFeature(feature.feature, appType, targetAudience);
+      stories.push(...featureStories);
+    });
+    
+    return stories;
+  }
+
+  // Define acceptance criteria
+  async defineAcceptanceCriteria(userDescription) {
+    const appType = this.detectAppType(userDescription);
+    
+    const criteriaTemplates = {
+      'dating': {
+        'User Registration': [
+          'User can register with email/phone',
+          'Email verification required',
+          'Profile photo mandatory',
+          'Age verification implemented'
+        ],
+        'Profile Creation': [
+          'All required fields completed',
+          'Photo upload successful',
+          'Bio character limit enforced',
+          'Privacy settings configured'
+        ]
+      },
+      'ecommerce': {
+        'Product Search': [
+          'Search results relevant',
+          'Filters work correctly',
+          'Sorting options available',
+          'No results message shown'
+        ],
+        'Shopping Cart': [
+          'Items add successfully',
+          'Quantity updates work',
+          'Remove items functional',
+          'Total calculated correctly'
+        ]
+      },
+      'productivity': {
+        'Task Management': [
+          'Tasks create successfully',
+          'Due dates set correctly',
+          'Status updates work',
+          'Notifications sent'
+        ]
+      }
+    };
+    
+    return criteriaTemplates[appType] || criteriaTemplates['productivity'];
+  }
+
+  // Prioritize features
+  async prioritizeFeatures(userDescription) {
+    const coreFeatures = await this.extractCoreFeatures(userDescription);
+    
+    const prioritized = coreFeatures.map((feature, index) => ({
+      ...feature,
+      priority: index < 3 ? 'High' : index < 6 ? 'Medium' : 'Low',
+      effort: this.estimateEffort(feature.feature),
+      impact: this.estimateImpact(feature.feature),
+      dependencies: this.identifyDependencies(feature.feature)
+    }));
+    
+    return prioritized.sort((a, b) => {
+      const priorityOrder = { 'High': 3, 'Medium': 2, 'Low': 1 };
+      return priorityOrder[b.priority] - priorityOrder[a.priority];
+    });
+  }
+
+  // Estimate effort for feature
+  estimateEffort(featureName) {
+    const effortMap = {
+      'User Authentication': 'Medium',
+      'Profile Management': 'Medium', 
+      'Messaging System': 'High',
+      'Payment Processing': 'High',
+      'Search & Filters': 'Medium',
+      'Push Notifications': 'Low',
+      'Admin Dashboard': 'High'
+    };
+    
+    return effortMap[featureName] || 'Medium';
+  }
+
+  // Estimate impact for feature
+  estimateImpact(featureName) {
+    const impactMap = {
+      'User Authentication': 'High',
+      'Profile Management': 'High',
+      'Messaging System': 'High', 
+      'Payment Processing': 'Medium',
+      'Search & Filters': 'High',
+      'Push Notifications': 'Medium',
+      'Admin Dashboard': 'Low'
+    };
+    
+    return impactMap[featureName] || 'Medium';
+  }
+
+  // Identify feature dependencies
+  identifyDependencies(featureName) {
+    const dependencyMap = {
+      'Profile Management': ['User Authentication'],
+      'Messaging System': ['User Authentication', 'Profile Management'],
+      'Payment Processing': ['User Authentication'],
+      'Search & Filters': ['Profile Management'],
+      'Push Notifications': ['User Authentication'],
+      'Admin Dashboard': ['User Authentication', 'User Management']
+    };
+    
+    return dependencyMap[featureName] || [];
   }
 
   // Get product analysis summary

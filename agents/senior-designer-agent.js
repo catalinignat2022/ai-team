@@ -89,17 +89,132 @@ class SeniorDesignerAgent {
     return designSystem;
   }
 
+  // Create brand identity
+  async createBrandIdentity(designBrief) {
+    const { appType, designDirection } = designBrief;
+    
+    return {
+      brandName: designBrief.projectOverview.split(' ')[0] || 'App',
+      tagline: this.generateTagline(appType),
+      personality: designDirection.mood,
+      values: this.defineBrandValues(appType),
+      voice: this.defineBrandVoice(appType),
+      logo: {
+        style: 'Modern and clean',
+        approach: 'Minimalist with meaningful symbolism',
+        formats: ['SVG', 'PNG', 'Favicon']
+      }
+    };
+  }
+
+  // Generate tagline based on app type
+  generateTagline(appType) {
+    const taglines = {
+      'dating': 'Connect with purpose',
+      'ecommerce': 'Shop with confidence',
+      'productivity': 'Work smarter, not harder'
+    };
+    
+    return taglines[appType] || 'Your perfect solution';
+  }
+
+  // Define brand values
+  defineBrandValues(appType) {
+    const values = {
+      'dating': ['Trust', 'Authenticity', 'Inclusivity', 'Safety'],
+      'ecommerce': ['Quality', 'Transparency', 'Reliability', 'Value'],
+      'productivity': ['Efficiency', 'Simplicity', 'Innovation', 'Collaboration']
+    };
+    
+    return values[appType] || values['productivity'];
+  }
+
+  // Define brand voice
+  defineBrandVoice(appType) {
+    const voices = {
+      'dating': 'Warm, encouraging, and trustworthy',
+      'ecommerce': 'Helpful, confident, and straightforward',
+      'productivity': 'Clear, supportive, and empowering'
+    };
+    
+    return voices[appType] || voices['productivity'];
+  }
+
+  // Define typography
+  async defineTypography(designBrief) {
+    return {
+      primaryFont: 'Inter',
+      secondaryFont: 'Roboto',
+      fontStack: 'Inter, system-ui, -apple-system, sans-serif',
+      scales: {
+        h1: '2.5rem',
+        h2: '2rem',
+        h3: '1.5rem',
+        h4: '1.25rem',
+        body: '1rem',
+        small: '0.875rem'
+      },
+      weights: [300, 400, 500, 600, 700]
+    };
+  }
+
+  // Create spacing system
+  async createSpacingSystem() {
+    return {
+      base: '8px',
+      scale: [4, 8, 12, 16, 24, 32, 48, 64, 96],
+      semantic: {
+        xs: '4px',
+        sm: '8px', 
+        md: '16px',
+        lg: '24px',
+        xl: '32px'
+      }
+    };
+  }
+
+  // Design component library
+  async designComponentLibrary(designBrief) {
+    return {
+      atoms: ['Button', 'Input', 'Icon', 'Avatar', 'Badge', 'Checkbox', 'Radio'],
+      molecules: ['Search Box', 'Navigation Item', 'Card', 'Form Field', 'Toggle'],
+      organisms: ['Header', 'Footer', 'Sidebar', 'Product Grid', 'Form'],
+      templates: ['Landing Page', 'Dashboard', 'Profile Page', 'List View']
+    };
+  }
+
+  // Create icon system
+  async createIconSystem(designBrief) {
+    return {
+      style: 'Outline with filled variants',
+      weight: '1.5px stroke',
+      size: ['16px', '20px', '24px', '32px'],
+      categories: ['Navigation', 'Actions', 'Communication', 'Status', 'Media']
+    };
+  }
+
+  // Define imagery guidelines
+  async defineImageryGuidelines(designBrief) {
+    return {
+      style: 'Modern, clean, and authentic',
+      mood: 'Professional yet approachable',
+      filters: 'Consistent color grading',
+      formats: ['WebP', 'JPEG', 'SVG for icons'],
+      aspectRatios: ['16:9', '4:3', '1:1', '3:2']
+    };
+  }
+
   // Collaborate with Frontend Developer for implementation
   async collaborateWithFrontendDeveloper(designSystem, technicalRequirements) {
     console.log('🤝 Collaborating with Frontend Developer...');
     
     const implementationGuide = {
-      cssVariables: await this.generateCSSVariables(designSystem),
-      tailwindConfig: await this.generateTailwindConfig(designSystem),
-      componentSpecs: await this.createComponentSpecs(designSystem),
-      responsiveBreakpoints: await this.defineResponsiveBreakpoints(),
-      animationSpecs: await this.createAnimationSpecs(),
-      accessibilityRequirements: await this.defineAccessibilityRequirements()
+      cssVariables: this.generateSimpleCSSVariables(designSystem),
+      tailwindConfig: this.generateSimpleTailwindConfig(designSystem),
+      componentSpecs: this.createSimpleComponentSpecs(designSystem),
+      responsiveBreakpoints: this.defineSimpleResponsiveBreakpoints(),
+      animationSpecs: this.createSimpleAnimationSpecs(),
+      accessibilityRequirements: this.defineSimpleAccessibilityRequirements()
     };
     
     return implementationGuide;
@@ -297,27 +412,86 @@ class SeniorDesignerAgent {
     
     const components = {
       // Form Components
-      buttons: await this.designButtons(designBrief),
-      inputs: await this.designInputFields(designBrief),
-      selects: await this.designSelectElements(designBrief),
-      checkboxes: await this.designCheckboxes(designBrief),
+      buttons: {
+        primary: { bg: 'primary', text: 'white', radius: '8px' },
+        secondary: { bg: 'transparent', text: 'primary', border: '1px solid' },
+        sizes: ['sm', 'md', 'lg']
+      },
+      inputs: {
+        style: 'Modern with focus states',
+        padding: '12px 16px',
+        border: '1px solid #e2e8f0',
+        radius: '8px'
+      },
+      selects: {
+        style: 'Custom dropdown with arrow',
+        padding: '12px 16px',
+        options: 'Highlighted on hover'
+      },
+      checkboxes: {
+        style: 'Custom design with checkmark',
+        size: '20px',
+        states: ['default', 'checked', 'disabled']
+      },
       
       // Navigation Components
-      header: await this.designHeader(designBrief),
-      navigation: await this.designNavigation(designBrief),
-      breadcrumbs: await this.designBreadcrumbs(designBrief),
-      pagination: await this.designPagination(designBrief),
+      header: {
+        height: '64px',
+        background: 'white',
+        shadow: 'subtle',
+        logo: 'left-aligned'
+      },
+      navigation: {
+        style: 'Horizontal tabs',
+        active: 'underlined',
+        hover: 'background change'
+      },
+      breadcrumbs: {
+        separator: '/',
+        style: 'Text links with hover'
+      },
+      pagination: {
+        style: 'Numbers with prev/next',
+        active: 'highlighted'
+      },
       
-      // Content Components
-      cards: await this.designCards(designBrief),
-      modals: await this.designModals(designBrief),
-      alerts: await this.designAlerts(designBrief),
-      tooltips: await this.designTooltips(designBrief),
+      // Content Components  
+      cards: {
+        padding: '24px',
+        radius: '12px',
+        shadow: 'elevation-1',
+        hover: 'elevation-2'
+      },
+      modals: {
+        backdrop: 'semi-transparent',
+        content: 'centered card',
+        animation: 'fade-in'
+      },
+      alerts: {
+        types: ['success', 'warning', 'error', 'info'],
+        style: 'Banner with icon'
+      },
+      tooltips: {
+        style: 'Dark background',
+        position: 'auto',
+        arrow: 'included'
+      },
       
       // Layout Components
-      grid: await this.designGridSystem(designBrief),
-      containers: await this.designContainers(designBrief),
-      dividers: await this.designDividers(designBrief)
+      grid: {
+        columns: 12,
+        gutters: '24px',
+        breakpoints: ['sm', 'md', 'lg', 'xl']
+      },
+      containers: {
+        maxWidth: '1200px',
+        padding: '0 24px',
+        centered: true
+      },
+      dividers: {
+        style: 'Subtle lines',
+        spacing: '32px'
+      }
     };
     
     return components;
@@ -620,6 +794,335 @@ class SeniorDesignerAgent {
         '4. Test & Iterate',
         '5. Handoff & Support'
       ]
+    };
+  }
+
+  // Define user personas based on product requirements
+  async defineUserPersonas(productRequirements) {
+    const { targetAudience, appType } = productRequirements;
+    
+    const personaTemplates = {
+      'dating': [
+        {
+          name: 'Professional Alex',
+          age: '28-35',
+          occupation: 'Marketing Manager',
+          goals: ['Find meaningful relationship', 'Balance career and dating'],
+          painPoints: ['Limited time', 'Safety concerns', 'Superficial connections'],
+          techSavvy: 'High'
+        },
+        {
+          name: 'Mature Maria',
+          age: '35-45', 
+          occupation: 'Teacher',
+          goals: ['Serious relationship', 'Genuine connections'],
+          painPoints: ['Skeptical of online dating', 'Privacy concerns'],
+          techSavvy: 'Medium'
+        }
+      ],
+      'ecommerce': [
+        {
+          name: 'Busy Parent',
+          age: '30-40',
+          occupation: 'Various',
+          goals: ['Quick shopping', 'Good deals', 'Quality products'],
+          painPoints: ['No time to compare', 'Trust issues', 'Complicated checkout'],
+          techSavvy: 'Medium'
+        }
+      ],
+      'productivity': [
+        {
+          name: 'Project Manager',
+          age: '25-40',
+          occupation: 'Various',
+          goals: ['Team efficiency', 'Clear tracking', 'Easy collaboration'],
+          painPoints: ['Tool fragmentation', 'Manual processes', 'Poor visibility'],
+          techSavvy: 'High'
+        }
+      ]
+    };
+    
+    return personaTemplates[appType] || personaTemplates['productivity'];
+  }
+
+  // Map user journey based on product requirements
+  async mapUserJourney(productRequirements) {
+    const { appType } = productRequirements;
+    
+    const journeyTemplates = {
+      'dating': [
+        {
+          stage: 'Discovery',
+          touchpoints: ['App store', 'Social media', 'Word of mouth'],
+          emotions: ['Curious', 'Hopeful', 'Skeptical'],
+          actions: ['Research app', 'Read reviews', 'Download app']
+        },
+        {
+          stage: 'Onboarding',
+          touchpoints: ['Registration', 'Profile setup', 'Photo upload'],
+          emotions: ['Excited', 'Nervous', 'Careful'],
+          actions: ['Create account', 'Fill profile', 'Set preferences']
+        },
+        {
+          stage: 'First Use',
+          touchpoints: ['Browse profiles', 'First match', 'First message'],
+          emotions: ['Excited', 'Anxious', 'Engaged'],
+          actions: ['Swipe/browse', 'Send message', 'Wait for response']
+        }
+      ],
+      'ecommerce': [
+        {
+          stage: 'Need Recognition',
+          touchpoints: ['Search engines', 'Social media', 'Recommendations'],
+          emotions: ['Motivated', 'Determined'],
+          actions: ['Search for product', 'Compare options']
+        },
+        {
+          stage: 'Purchase',
+          touchpoints: ['Product page', 'Cart', 'Checkout'],
+          emotions: ['Confident', 'Impatient', 'Trusting'],
+          actions: ['Add to cart', 'Enter details', 'Complete purchase']
+        }
+      ],
+      'productivity': [
+        {
+          stage: 'Problem Recognition',
+          touchpoints: ['Work frustration', 'Team inefficiency'],
+          emotions: ['Frustrated', 'Motivated'],
+          actions: ['Research solutions', 'Try demo']
+        },
+        {
+          stage: 'Implementation',
+          touchpoints: ['Setup', 'Team onboarding', 'First projects'],
+          emotions: ['Hopeful', 'Learning', 'Productive'],
+          actions: ['Configure tool', 'Invite team', 'Start tasks']
+        }
+      ]
+    };
+    
+    return journeyTemplates[appType] || journeyTemplates['productivity'];
+  }
+
+  // Define design goals based on product requirements
+  async defineDesignGoals(productRequirements) {
+    const { businessGoals, appType } = productRequirements;
+    
+    const designGoalTemplates = {
+      'dating': [
+        'Create trustworthy and safe environment',
+        'Facilitate meaningful connections',
+        'Optimize for user engagement and retention',
+        'Build emotional connection with the brand'
+      ],
+      'ecommerce': [
+        'Maximize conversion rates',
+        'Build trust and credibility',
+        'Simplify the purchasing process',
+        'Create delightful shopping experience'
+      ],
+      'productivity': [
+        'Reduce cognitive load and complexity',
+        'Improve task completion efficiency',
+        'Enhance team collaboration',
+        'Create intuitive and learnable interface'
+      ]
+    };
+    
+    return designGoalTemplates[appType] || designGoalTemplates['productivity'];
+  }
+
+  // Select design principles based on app type
+  selectDesignPrinciples(appType) {
+    const principlesByType = {
+      'dating': ['Trust & Safety', 'Inclusive Design', 'Emotional Connection', 'Privacy First'],
+      'ecommerce': ['Conversion Optimization', 'Trust Signals', 'Clear Navigation', 'Fast Loading'],
+      'productivity': ['Efficiency First', 'Minimal Cognitive Load', 'Consistent Patterns', 'Accessibility']
+    };
+    
+    return principlesByType[appType] || principlesByType['productivity'];
+  }
+
+  // Define success metrics for design
+  defineSuccessMetrics(appType) {
+    const metricsByType = {
+      'dating': ['User engagement rate', 'Profile completion rate', 'Match success rate', 'User retention'],
+      'ecommerce': ['Conversion rate', 'Cart abandonment', 'Time to purchase', 'Customer satisfaction'],
+      'productivity': ['Task completion rate', 'Time on task', 'Error rate', 'User satisfaction']
+    };
+    
+    return metricsByType[appType] || metricsByType['productivity'];
+  }
+
+  // Estimate design timeline
+  estimateDesignTimeline(appType) {
+    const baseTimelines = {
+      'dating': '8-12 weeks',
+      'ecommerce': '6-10 weeks', 
+      'productivity': '4-8 weeks'
+    };
+    
+    return baseTimelines[appType] || '6-8 weeks';
+  }
+
+  // Infer target audience if not provided
+  inferTargetAudience(appType) {
+    const audienceByType = {
+      'dating': 'Young professionals aged 25-35 seeking serious relationships',
+      'ecommerce': 'Digital-savvy consumers aged 25-45 who value convenience',
+      'productivity': 'Working professionals and teams looking to improve efficiency'
+    };
+    
+    return audienceByType[appType] || audienceByType['productivity'];
+  }
+
+  // Infer business goals if not provided
+  inferBusinessGoals(appType) {
+    const goalsByType = {
+      'dating': ['Increase user engagement', 'Build trust and safety', 'Generate premium subscriptions'],
+      'ecommerce': ['Drive sales conversion', 'Increase average order value', 'Build customer loyalty'],
+      'productivity': ['Improve user productivity', 'Increase feature adoption', 'Reduce support requests']
+    };
+    
+    return goalsByType[appType] || goalsByType['productivity'];
+  }
+
+  // Analyze design direction based on app type and audience
+  analyzeDesignDirection(appType, targetAudience) {
+    const directionByType = {
+      'dating': {
+        style: 'Modern, warm, and inviting',
+        mood: 'Romantic yet professional, trustworthy',
+        approach: 'Emotional design with safety-first mindset'
+      },
+      'ecommerce': {
+        style: 'Clean, modern, and conversion-focused',
+        mood: 'Trustworthy, efficient, and user-friendly',
+        approach: 'Data-driven design with clear call-to-actions'
+      },
+      'productivity': {
+        style: 'Minimal, functional, and organized',
+        mood: 'Professional, efficient, and calming',
+        approach: 'Function-first design with excellent usability'
+      }
+    };
+    
+    return directionByType[appType] || directionByType['productivity'];
+  }
+
+  // Simple implementation methods
+  generateSimpleCSSVariables(designSystem) {
+    return {
+      colors: designSystem.colorPalette,
+      typography: designSystem.typography,
+      spacing: designSystem.spacing
+    };
+  }
+
+  generateSimpleTailwindConfig(designSystem) {
+    return {
+      theme: {
+        colors: designSystem.colorPalette,
+        fontFamily: designSystem.typography,
+        spacing: designSystem.spacing
+      }
+    };
+  }
+
+  createSimpleComponentSpecs(designSystem) {
+    return {
+      button: 'Use primary colors with rounded corners',
+      input: 'Clean design with focus states',
+      card: 'Subtle shadow with rounded corners'
+    };
+  }
+
+  defineSimpleResponsiveBreakpoints() {
+    return {
+      sm: '640px',
+      md: '768px', 
+      lg: '1024px',
+      xl: '1280px'
+    };
+  }
+
+  createSimpleAnimationSpecs() {
+    return {
+      transitions: 'smooth 0.2s ease',
+      hover: 'scale and color changes',
+      loading: 'subtle pulse'
+    };
+  }
+
+  defineSimpleAccessibilityRequirements() {
+    return {
+      contrast: 'WCAG AA compliant',
+      keyboard: 'Full keyboard navigation',
+      screen_reader: 'Semantic HTML structure'
+    };
+  }
+
+  // Load design patterns library
+  loadDesignPatterns() {
+    return {
+      layout: ['Grid System', 'Flexbox Patterns', 'Card Layouts', 'Hero Sections'],
+      navigation: ['Tab Navigation', 'Sidebar Menu', 'Breadcrumbs', 'Pagination'],
+      forms: ['Input Groups', 'Form Validation', 'Multi-step Forms', 'Search Patterns'],
+      feedback: ['Modals', 'Toasts', 'Progress Indicators', 'Loading States'],
+      content: ['Lists', 'Tables', 'Carousels', 'Content Blocks']
+    };
+  }
+
+  // Load color palettes
+  loadColorPalettes() {
+    return {
+      primary: {
+        dating: ['#E91E63', '#F48FB1', '#FCE4EC'],
+        ecommerce: ['#2196F3', '#64B5F6', '#E3F2FD'],
+        productivity: ['#4CAF50', '#81C784', '#E8F5E8']
+      },
+      neutral: ['#FFFFFF', '#F5F5F5', '#E0E0E0', '#9E9E9E', '#424242', '#000000'],
+      semantic: {
+        success: '#4CAF50',
+        warning: '#FF9800', 
+        error: '#F44336',
+        info: '#2196F3'
+      }
+    };
+  }
+
+  // Load typography rules
+  loadTypographyRules() {
+    return {
+      fontStacks: {
+        primary: 'Inter, system-ui, sans-serif',
+        secondary: 'Roboto, Arial, sans-serif',
+        mono: 'JetBrains Mono, monospace'
+      },
+      scales: {
+        h1: '2.5rem',
+        h2: '2rem',
+        h3: '1.5rem',
+        h4: '1.25rem',
+        body: '1rem',
+        small: '0.875rem'
+      },
+      weights: {
+        light: 300,
+        regular: 400,
+        medium: 500,
+        semibold: 600,
+        bold: 700
+      }
+    };
+  }
+
+  // Load component library
+  loadComponentLibrary() {
+    return {
+      atoms: ['Button', 'Input', 'Icon', 'Avatar', 'Badge'],
+      molecules: ['SearchBox', 'Navigation', 'Card', 'Form Field'],
+      organisms: ['Header', 'Footer', 'Sidebar', 'Product Grid'],
+      templates: ['Landing Page', 'Dashboard', 'Profile Page', 'Checkout Flow']
     };
   }
 }

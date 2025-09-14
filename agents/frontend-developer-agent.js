@@ -732,4 +732,83 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   main();
 }
 
+// Generate enhanced frontend JavaScript with modern patterns
+FrontendDeveloperAgent.prototype.generateEnhancedFrontendJS = function(designSystem, appName) {
+  return `
+// ${appName} - Enhanced Frontend Application
+// Generated with modern JavaScript patterns and design system integration
+
+// Design System Integration
+const designTokens = ${JSON.stringify(designSystem.colorPalette || {}, null, 2)};
+
+// App Configuration
+const appConfig = {
+  name: '${appName}',
+  version: '1.0.0',
+  theme: designTokens.primary || '#007bff',
+  features: ['responsive', 'accessibility', 'performance']
+};
+
+// Main Application Class
+class ${appName.replace(/\s+/g, '')}App {
+  constructor() {
+    this.initialized = false;
+    this.components = new Map();
+    this.state = { user: null, theme: 'light', loading: false };
+    this.init();
+  }
+
+  async init() {
+    await this.loadComponents();
+    this.setupEventListeners();
+    this.render();
+    this.initialized = true;
+    console.log('✅ ${appName} initialized successfully');
+  }
+
+  loadComponents() {
+    // Component loading logic
+    const components = ['Header', 'Navigation', 'MainContent', 'Footer'];
+    components.forEach(name => {
+      this.components.set(name, { name, element: null });
+    });
+  }
+
+  setupEventListeners() {
+    document.addEventListener('click', this.handleClick.bind(this));
+    window.addEventListener('resize', this.handleResize.bind(this));
+  }
+
+  handleClick(event) {
+    const action = event.target.dataset.action;
+    if (action) this.executeAction(action, event.target);
+  }
+
+  handleResize() {
+    this.updateLayout();
+  }
+
+  executeAction(action, element) {
+    console.log('Executing action:', action);
+  }
+
+  updateLayout() {
+    // Responsive updates
+  }
+
+  render() {
+    const app = document.getElementById('app');
+    if (app) {
+      app.innerHTML = '<div>App loaded with design system</div>';
+    }
+  }
+}
+
+// Initialize when ready
+document.addEventListener('DOMContentLoaded', () => {
+  window.app = new ${appName.replace(/\s+/g, '')}App();
+});
+`;
+};
+
 export default FrontendDeveloperAgent;
