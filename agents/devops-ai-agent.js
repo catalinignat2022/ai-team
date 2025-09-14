@@ -868,12 +868,8 @@ module.exports = app;`;
         }
       }
       
-      // Enhanced HTML with design system
+      // Enhanced HTML with design system (all CSS and JS inline for CSP compliance)
       structure['views/index.html'] = this.generateEnhancedHTML(analysis);
-      
-      // Enhanced JavaScript with component interactions
-      structure['public/scripts/components.js'] = this.generateComponentJS(analysis.designSystem);
-      structure['public/scripts/main.js'] = this.generateEnhancedFrontendJS(analysis);
       
       // Design system documentation
       structure['docs/design-system.md'] = this.generateDesignSystemDocs(analysis.designSystem);
@@ -1240,8 +1236,48 @@ a:hover {
         </main>
     </div>
     
-    <script src="/scripts/components.js"></script>
-    <script src="/scripts/main.js"></script>
+    <script>
+      // CSP-compliant JavaScript - no external dependencies
+      document.addEventListener('DOMContentLoaded', function() {
+        // Initialize app components
+        console.log('App initialized');
+        
+        // Add event listeners to all buttons with data-action
+        const buttons = document.querySelectorAll('[data-action]');
+        buttons.forEach(button => {
+          button.addEventListener('click', handleButtonClick);
+        });
+        
+        function handleButtonClick(event) {
+          const action = event.target.dataset.action;
+          const target = event.target.dataset.target;
+          
+          switch(action) {
+            case 'weather':
+              alert('Weather feature coming soon!');
+              break;
+            case 'demo':
+              alert('Funcționalitate în dezvoltare!');
+              break;
+            case 'docs':
+              alert('Documentație în curând!');
+              break;
+            case 'send-message':
+              const input = document.getElementById(target);
+              if (input && input.value.trim()) {
+                alert('Message: ' + input.value);
+                input.value = '';
+              }
+              break;
+            case 'checkout':
+              alert('Checkout functionality coming soon!');
+              break;
+            default:
+              console.log('Action:', action);
+          }
+        }
+      });
+    </script>
 </body>
 </html>`;
   }
@@ -1289,7 +1325,7 @@ a:hover {
                 gap: 15px;
                 margin-top: 20px;
             ">
-                <button class="btn-calc clear" onclick="clearDisplay()" style="
+                <button class="btn-calc clear" data-action="clear" style="
                     grid-column: span 2;
                     padding: 20px;
                     font-size: 1.2rem;
@@ -1301,7 +1337,7 @@ a:hover {
                     transition: all 0.2s;
                 ">Șterge</button>
                 
-                <button class="btn-calc operator" onclick="deleteLast()" style="
+                <button class="btn-calc operator" data-action="delete" style="
                     padding: 20px;
                     font-size: 1.2rem;
                     border: none;
@@ -1311,7 +1347,7 @@ a:hover {
                     cursor: pointer;
                 ">⌫</button>
                 
-                <button class="btn-calc operator" onclick="appendToDisplay('/')" style="
+                <button class="btn-calc operator" data-action="append" data-value="/" style="
                     padding: 20px;
                     font-size: 1.2rem;
                     border: none;
@@ -1321,24 +1357,24 @@ a:hover {
                     cursor: pointer;
                 ">÷</button>
                 
-                <button class="btn-calc number" onclick="appendToDisplay('7')">7</button>
-                <button class="btn-calc number" onclick="appendToDisplay('8')">8</button>
-                <button class="btn-calc number" onclick="appendToDisplay('9')">9</button>
-                <button class="btn-calc operator" onclick="appendToDisplay('*')">×</button>
+                <button class="btn-calc number" data-action="append" data-value="7">7</button>
+                <button class="btn-calc number" data-action="append" data-value="8">8</button>
+                <button class="btn-calc number" data-action="append" data-value="9">9</button>
+                <button class="btn-calc operator" data-action="append" data-value="*">×</button>
                 
-                <button class="btn-calc number" onclick="appendToDisplay('4')">4</button>
-                <button class="btn-calc number" onclick="appendToDisplay('5')">5</button>
-                <button class="btn-calc number" onclick="appendToDisplay('6')">6</button>
-                <button class="btn-calc operator" onclick="appendToDisplay('-')">-</button>
+                <button class="btn-calc number" data-action="append" data-value="4">4</button>
+                <button class="btn-calc number" data-action="append" data-value="5">5</button>
+                <button class="btn-calc number" data-action="append" data-value="6">6</button>
+                <button class="btn-calc operator" data-action="append" data-value="-">-</button>
                 
-                <button class="btn-calc number" onclick="appendToDisplay('1')">1</button>
-                <button class="btn-calc number" onclick="appendToDisplay('2')">2</button>
-                <button class="btn-calc number" onclick="appendToDisplay('3')">3</button>
-                <button class="btn-calc operator" onclick="appendToDisplay('+')">+</button>
+                <button class="btn-calc number" data-action="append" data-value="1">1</button>
+                <button class="btn-calc number" data-action="append" data-value="2">2</button>
+                <button class="btn-calc number" data-action="append" data-value="3">3</button>
+                <button class="btn-calc operator" data-action="append" data-value="+">+</button>
                 
-                <button class="btn-calc number zero" onclick="appendToDisplay('0')" style="grid-column: span 2;">0</button>
-                <button class="btn-calc number" onclick="appendToDisplay('.')">.</button>
-                <button class="btn-calc equals" onclick="calculate()" style="
+                <button class="btn-calc number zero" data-action="append" data-value="0" style="grid-column: span 2;">0</button>
+                <button class="btn-calc number" data-action="append" data-value=".">.</button>
+                <button class="btn-calc equals" data-action="calculate" style="
                     background: var(--success-color);
                     color: white;
                 ">=</button>
@@ -1453,7 +1489,7 @@ a:hover {
                     font-size: 1rem;
                     margin-right: 10px;
                 ">
-                <button onclick="addTask()" style="
+                <button data-action="add-task" style="
                     padding: 15px 25px;
                     background: var(--primary-color);
                     color: white;
@@ -1524,12 +1560,12 @@ a:hover {
                         \${task.completed ? 'opacity: 0.6;' : ''}
                     ">
                         <input type="checkbox" \${task.completed ? 'checked' : ''} 
-                               onchange="toggleTask(\${task.id})" style="margin-right: 15px;">
+                               data-action="toggle-task" data-task-id="\${task.id}" style="margin-right: 15px;">
                         <span style="
                             flex: 1;
                             \${task.completed ? 'text-decoration: line-through;' : ''}
                         ">\${task.text}</span>
-                        <button onclick="deleteTask(\${task.id})" style="
+                        <button data-action="delete-task" data-task-id="\${task.id}" style="
                             background: #ff6b6b;
                             color: white;
                             border: none;
@@ -1561,7 +1597,7 @@ a:hover {
                     font-size: 1rem;
                     margin-right: 10px;
                 ">
-                <button onclick="getWeather()" style="
+                <button data-action="weather" style="
                     padding: 15px 25px;
                     background: var(--primary-color);
                     color: white;
@@ -1653,7 +1689,7 @@ a:hover {
                   font-size: 1.1rem;
                   cursor: pointer;
                   margin: 0 10px;
-              " onclick="alert('Funcționalitate în dezvoltare!')">Începe</button>
+              " data-action="demo">Începe</button>
               <button style="
                   padding: 15px 30px;
                   background: transparent;
@@ -1663,7 +1699,7 @@ a:hover {
                   font-size: 1.1rem;
                   cursor: pointer;
                   margin: 0 10px;
-              " onclick="alert('Documentație în curând!')">Documentație</button>
+              " data-action="docs">Documentație</button>
           </div>
       </div>
     `;
@@ -2600,7 +2636,7 @@ const app = new App();
                 <div class="chat-input">
                     <input type="text" id="message-input" placeholder="Type your message..." 
                            onkeypress="if(event.key==='Enter') app.sendMessage(this.value)">
-                    <button onclick="app.sendMessage(document.getElementById('message-input').value)">Send</button>
+                    <button data-action="send-message" data-target="message-input">Send</button>
                 </div>
             </div>
         </div>`;
@@ -2613,7 +2649,7 @@ const app = new App();
                 <!-- Products will be loaded here -->
             </div>
             <div style="text-align: center; margin-top: 20px;">
-                <button onclick="app.checkout()" class="btn">
+                <button data-action="checkout" class="btn">
                     Checkout (<span id="cart-count">0</span> items)
                 </button>
             </div>
@@ -2678,7 +2714,7 @@ router.get('/status', (req, res) => {
     timestamp: new Date().toISOString(),
     service: '${analysis.type}',
     version: '1.0.0',
-    features: ${JSON.stringify(analysis.features)}
+    features: ${JSON.stringify(analysis.features || [])}
   });
 });
 

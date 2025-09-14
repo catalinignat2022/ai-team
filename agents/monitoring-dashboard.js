@@ -588,15 +588,39 @@ class MonitoringDashboard {
         </div>
 
         <div class="buttons">
-            <button class="btn" onclick="triggerHealthCheck()">🔍 Health Check</button>
-            <button class="btn" onclick="triggerManualFix()">🔧 Manual Fix</button>
-            <button class="btn" onclick="testDeployment()">🧪 Test Deployment</button>
-            <button class="btn" onclick="refreshData()">🔄 Refresh</button>
+            <button class="btn" data-action="health-check">🔍 Health Check</button>
+            <button class="btn" data-action="manual-fix">🔧 Manual Fix</button>
+            <button class="btn" data-action="test-deployment">🧪 Test Deployment</button>
+            <button class="btn" data-action="refresh">🔄 Refresh</button>
         </div>
     </div>
 
     <script>
         const socket = io();
+        
+        // Initialize button event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.btn[data-action]');
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const action = this.dataset.action;
+                    switch(action) {
+                        case 'health-check':
+                            triggerHealthCheck();
+                            break;
+                        case 'manual-fix':
+                            triggerManualFix();
+                            break;
+                        case 'test-deployment':
+                            testDeployment();
+                            break;
+                        case 'refresh':
+                            refreshData();
+                            break;
+                    }
+                });
+            });
+        });
         
         socket.on('metrics-update', (metrics) => {
             document.getElementById('uptime').textContent = formatUptime(metrics.uptime);
