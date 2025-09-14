@@ -621,6 +621,10 @@ module.exports = app;`;
     console.log('📝 Description:', description);
     
     try {
+      // Step 0: Analyze app description first
+      console.log('🔍 Step 0: Analyzing app description...');
+      const analysis = this.analyzeAppDescription(description);
+      
       // Step 1: Product Owner analyzes requirements
       console.log('📋 Step 1: Product Owner analyzing requirements...');
       const SeniorProductOwnerAgent = require('./senior-product-owner-agent');
@@ -657,8 +661,8 @@ module.exports = app;`;
       
       // Step 6: Generate repository structure with design system and advanced styling
       console.log('🏗️ Step 6: Generating repository structure...');
-      const analysis = {
-        ...this.analyzeAppDescription(description),
+      const finalAnalysis = {
+        ...analysis,
         productRequirements: designCollaboration.productRequirements,
         designSystem: designSystem,
         advancedStyling: advancedStyling,
@@ -674,11 +678,11 @@ module.exports = app;`;
         hasAdvancedStyling: !!advancedStyling
       });
       
-      const repoStructure = this.generateRepositoryStructure(analysis);
+      const repoStructure = this.generateRepositoryStructure(finalAnalysis);
       
       // Step 7: Create the repository and deploy
       console.log('🚀 Step 7: Creating repository and deploying...');
-      const result = await this.deployNewApplication(analysis, repoStructure);
+      const result = await this.deployNewApplication(finalAnalysis, repoStructure);
       
       // Enhanced result with design and styling information
       result.designSystem = {
