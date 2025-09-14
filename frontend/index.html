@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI App Creator - Crează aplicații instant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid #10b981;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .main-form {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #f0f0f0;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #4ade80;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        textarea::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .examples {
+            margin-top: 10px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .example-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .example-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, #4ade80, #22c55e);
+            border: none;
+            color: white;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(74, 222, 128, 0.3);
+            display: block;
+            margin: 0 auto;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 222, 128, 0.4);
+        }
+
+        .submit-btn:disabled {
+            background: rgba(255, 255, 255, 0.3);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #4ade80;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: none;
+        }
+
+        .result.success {
+            border-color: #4ade80;
+            background: rgba(74, 222, 128, 0.1);
+        }
+
+        .result.error {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .result h3 {
+            margin-bottom: 15px;
+            color: #4ade80;
+        }
+
+        .result.error h3 {
+            color: #ef4444;
+        }
+
+        .result-content {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4ade80;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            opacity: 0.8;
+            font-size: 0.9em;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            opacity: 0.7;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .main-form {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI App Creator</h1>
+            <p class="subtitle">Spune-mi ce aplicație vrei și o voi crea instant!</p>
+            <div class="status-badge" id="serverStatus">
+                🔄 Conectare la server...
+            </div>
+        </div>
+
+        <div class="main-form">
+            <form id="appCreatorForm">
+                <div class="form-group">
+                    <label for="appDescription">
+                        💡 Descrie aplicația pe care o vrei:
+                    </label>
+                    <div class="input-container">
+                        <textarea 
+                            id="appDescription" 
+                            name="appDescription" 
+                            placeholder="Vreau să creez o aplicație care să facă..."
+                            required
+                        ></textarea>
+                    </div>
+                    
+                    <div class="examples">
+                        <strong>💡 Exemple:</strong>
+                        <div class="example-item" onclick="setExample('Vreau să creez o aplicație de chat în timp real cu autentificare și notificări push')">
+                            📱 Aplicație de chat în timp real
+                        </div>
+                        <div class="example-item" onclick="setExample('Vreau să creez un e-commerce pentru produse handmade cu plăți integrate și gestiune stoc')">
+                            🛒 E-commerce pentru produse handmade
+                        </div>
+                        <div class="example-item" onclick="setExample('Vreau să creez o aplicație de gestiune taskuri pentru echipe cu kanban board și timeline')">
+                            ✅ Gestiune taskuri pentru echipe
+                        </div>
+                        <div class="example-item" onclick="setExample('Vreau să creez o platformă de învățare online cu cursuri video și teste interactive')">
+                            🎓 Platformă de învățare online
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    🚀 Creează Aplicația
+                </button>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>🤖 AI-ul lucrează la aplicația ta...</p>
+                <p><small>Acest proces poate dura 2-5 minute</small></p>
+            </div>
+
+            <div class="result" id="result">
+                <h3 id="resultTitle">✅ Aplicația a fost creată cu succes!</h3>
+                <div class="result-content" id="resultContent"></div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="appsCreated">0</div>
+                <div class="stat-label">Aplicații create</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="avgTime">~3min</div>
+                <div class="stat-label">Timp mediu</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="successRate">98%</div>
+                <div class="stat-label">Rata de succes</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>🤖 Powered by AI with 15+ years development experience</p>
+            <p>Conectat la: <span id="serverUrl">Railway Server</span></p>
+        </div>
+    </div>
+
+    <script>
+        // Auto-detect server URL (Railway or local)
+        const SERVER_URL = window.location.origin;
+        
+        // Update server URL display
+        document.getElementById('serverUrl').textContent = SERVER_URL;
+
+        // Check server status on load
+        async function checkServerStatus() {
+            try {
+                const response = await fetch(`${SERVER_URL}/health`);
+                const data = await response.json();
+                
+                if (data.status === 'OK') {
+                    document.getElementById('serverStatus').innerHTML = '✅ Server conectat';
+                    document.getElementById('serverStatus').style.background = 'rgba(16, 185, 129, 0.2)';
+                    document.getElementById('serverStatus').style.borderColor = '#10b981';
+                    
+                    // Update stats from server
+                    updateStats(data);
+                } else {
+                    throw new Error('Server not healthy');
+                }
+            } catch (error) {
+                document.getElementById('serverStatus').innerHTML = '❌ Server offline';
+                document.getElementById('serverStatus').style.background = 'rgba(239, 68, 68, 0.2)';
+                document.getElementById('serverStatus').style.borderColor = '#ef4444';
+            }
+        }
+
+        function updateStats(serverData) {
+            // You can update these with real data from the server
+            if (serverData.uptime) {
+                const uptime = Math.floor(serverData.uptime / 60);
+                document.getElementById('avgTime').textContent = `${uptime}min uptime`;
+            }
+        }
+
+        function setExample(text) {
+            document.getElementById('appDescription').value = text;
+            document.getElementById('appDescription').focus();
+        }
+
+        async function createApp(description) {
+            const response = await fetch(`${SERVER_URL}/api/create-app`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    description: description,
+                    timestamp: new Date().toISOString()
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+
+            return await response.json();
+        }
+
+        document.getElementById('appCreatorForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const description = document.getElementById('appDescription').value.trim();
+            if (!description) {
+                alert('Te rog descrie aplicația pe care o vrei!');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+
+            try {
+                const result = await createApp(description);
+                
+                // Show success result
+                document.getElementById('result').className = 'result success';
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('resultTitle').textContent = '✅ Aplicația a fost creată cu succes!';
+                document.getElementById('resultContent').textContent = JSON.stringify(result, null, 2);
+                
+                // Update stats
+                const currentCount = parseInt(document.getElementById('appsCreated').textContent);
+                document.getElementById('appsCreated').textContent = currentCount + 1;
+                
+            } catch (error) {
+                // Show error result
+                document.getElementById('result').className = 'result error';
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('resultTitle').textContent = '❌ Eroare la crearea aplicației';
+                document.getElementById('resultContent').textContent = `Error: ${error.message}\n\nTe rog încearcă din nou sau contactează support.`;
+            } finally {
+                // Hide loading
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('submitBtn').disabled = false;
+            }
+        });
+
+        // Check server status on page load
+        checkServerStatus();
+        
+        // Re-check server status every 30 seconds
+        setInterval(checkServerStatus, 30000);
+    </script>
+</body>
+</html>

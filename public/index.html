@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 DevOps AI Agent - App Creator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .input-section {
+            margin-bottom: 30px;
+        }
+        
+        .input-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+        
+        .input-box {
+            width: 100%;
+            min-height: 120px;
+            padding: 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 15px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+        
+        .input-box:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
+        }
+        
+        .input-box::placeholder {
+            color: #999;
+            font-style: italic;
+        }
+        
+        .examples {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .examples h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .examples ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .examples li {
+            margin: 8px 0;
+            padding: 8px;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .examples li:hover {
+            background: #e3f2fd;
+        }
+        
+        .create-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .create-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .create-btn:active {
+            transform: translateY(0);
+        }
+        
+        .create-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #e1e5e9;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .result {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 15px;
+            background: #f8f9fa;
+            border: 1px solid #e1e5e9;
+        }
+        
+        .result.success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .result.error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .progress {
+            margin: 20px 0;
+        }
+        
+        .progress-step {
+            margin: 10px 0;
+            padding: 10px;
+            background: #fff;
+            border-radius: 8px;
+            border-left: 4px solid #ddd;
+            transition: all 0.3s;
+        }
+        
+        .progress-step.active {
+            border-left-color: #667eea;
+            background: #e3f2fd;
+        }
+        
+        .progress-step.completed {
+            border-left-color: #4caf50;
+            background: #e8f5e8;
+        }
+        
+        .links {
+            margin-top: 20px;
+        }
+        
+        .links a {
+            display: inline-block;
+            margin: 5px 10px 5px 0;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+        
+        .links a:hover {
+            background: #5a6fd8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 DevOps AI Agent</h1>
+            <p>Senior DevOps Engineer cu 15+ ani experiență - App Creator</p>
+        </div>
+        
+        <div class="input-section">
+            <label class="input-label" for="appRequest">
+                📝 Descrie aplicația pe care vrei să o creez:
+            </label>
+            <textarea 
+                id="appRequest" 
+                class="input-box" 
+                placeholder="Exemplu: Vreau să creez o aplicație care să facă management de task-uri, să aibă autentificare cu Google, să trimită notificări email și să aibă dashboard cu statistici..."
+            ></textarea>
+        </div>
+        
+        <div class="examples">
+            <h3>💡 Exemple de aplicații:</h3>
+            <ul>
+                <li onclick="fillExample(this)">Vreau să creez un blog personal cu sistem de comentarii, autentificare și panel de admin</li>
+                <li onclick="fillExample(this)">Vreau să creez o platformă de e-commerce cu plăți online, gestionare produse și comenzi</li>
+                <li onclick="fillExample(this)">Vreau să creez o aplicație de chat în timp real cu grupuri, fișiere și notificări</li>
+                <li onclick="fillExample(this)">Vreau să creez un sistem de ticketing cu priorități, assignee și raportare</li>
+                <li onclick="fillExample(this)">Vreau să creez o aplicație de fitness cu tracking exerciții, progres și planuri</li>
+            </ul>
+        </div>
+        
+        <button class="create-btn" onclick="createApp()">
+            🚀 Creează Aplicația
+        </button>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>DevOps AI Agent lucrează la aplicația ta...</p>
+            <div class="progress" id="progress">
+                <div class="progress-step" id="step1">📊 Analizează cererea...</div>
+                <div class="progress-step" id="step2">🏗️ Generează arhitectura...</div>
+                <div class="progress-step" id="step3">⚙️ Creează backend-ul...</div>
+                <div class="progress-step" id="step4">🎨 Generează frontend-ul...</div>
+                <div class="progress-step" id="step5">📦 Configurează deployment...</div>
+                <div class="progress-step" id="step6">🔗 Conectează la baza de date...</div>
+                <div class="progress-step" id="step7">🚀 Deploys pe Railway...</div>
+            </div>
+        </div>
+        
+        <div class="result" id="result">
+            <h3 id="resultTitle">Rezultat:</h3>
+            <p id="resultMessage"></p>
+            <div class="links" id="resultLinks"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

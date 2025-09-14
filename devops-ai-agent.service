@@ -1,0 +1,30 @@
+[Unit]
+Description=DevOps AI Agent - Senior DevOps Engineer with 15+ Years Experience
+Documentation=https://github.com/catalinignat2022/ai-team
+After=network.target
+
+[Service]
+Type=simple
+User=node
+WorkingDirectory=/home/node/devops-ai-agent
+Environment=NODE_ENV=production
+Environment=PATH=/usr/bin:/usr/local/bin
+Environment=NODE_PATH=/usr/lib/node_modules
+ExecStart=/usr/local/bin/node devops-ai-server.js start
+Restart=always
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=devops-ai-agent
+TimeoutStopSec=20
+KillMode=mixed
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/home/node/devops-ai-agent/logs
+
+[Install]
+WantedBy=multi-user.target

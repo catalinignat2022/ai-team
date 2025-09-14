@@ -1,0 +1,60 @@
+{
+  "name": "devops-ai-agent-server",
+  "version": "1.0.0",
+  "description": "Senior DevOps AI Agent with 15+ years experience for autonomous deployment monitoring and fixing",
+  "main": "devops-ai-server.js",
+  "scripts": {
+    "start": "node devops-ai-server.js start",
+    "dev": "nodemon devops-ai-server.js start",
+    "scan": "node devops-ai-server.js scan",
+    "fix": "node devops-ai-server.js fix",
+    "test": "node devops-ai-server.js test",
+    "health": "node devops-ai-server.js test",
+    "dashboard": "node devops-ai-server.js start",
+    "create-repo": "node agents/devops-github-creator.js",
+    "setup": "npm install && cp .env.example .env && echo 'Please add your GitHub token to .env file'",
+    "setup-autostart": "./setup-autostart.sh",
+    "setup-linux": "sudo ./setup-linux-service.sh",
+    "pm2-start": "pm2 start ecosystem.config.json",
+    "pm2-stop": "pm2 stop devops-ai-agent",
+    "pm2-restart": "pm2 restart devops-ai-agent",
+    "pm2-logs": "pm2 logs devops-ai-agent",
+    "pm2-status": "pm2 status"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.62.0",
+    "@octokit/rest": "^20.0.2",
+    "axios": "^1.6.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.18.2",
+    "helmet": "^7.0.0",
+    "mongoose": "^8.18.1",
+    "node-cron": "^3.0.0",
+    "readline": "^1.3.0",
+    "socket.io": "^4.7.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "devops",
+    "ai-agent",
+    "automation",
+    "railway",
+    "github",
+    "monitoring",
+    "deployment",
+    "auto-fix",
+    "repository-creator"
+  ],
+  "author": "DevOps AI Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/catalinignat2022/ai-team.git"
+  }
+}
