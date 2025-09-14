@@ -211,7 +211,7 @@ class DevOpsAIServer {
       });
     });
 
-    // Health check endpoint
+    // Health check endpoint - Fixed for Railway frontend compatibility
     this.app.get('/health', (req, res) => {
       res.json({
         status: 'OK',
