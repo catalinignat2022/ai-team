@@ -4,7 +4,9 @@
   "description": "Senior DevOps AI Agent with 15+ years experience for autonomous deployment monitoring and fixing",
   "main": "devops-ai-server.js",
   "scripts": {
-    "start": "node devops-ai-server.js start",
+    "start": "node devops-ai-server.js",
+    "build": "npm install",
+    "railway": "./start.sh",
     "dev": "nodemon devops-ai-server.js start",
     "scan": "node devops-ai-server.js scan",
     "fix": "node devops-ai-server.js fix",
