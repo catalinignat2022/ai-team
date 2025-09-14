@@ -353,6 +353,12 @@ class SeniorProductOwnerAgent {
 
   // Helper methods
   detectAppType(description) {
+    // Safety check for undefined description
+    if (!description || typeof description !== 'string') {
+      console.warn('⚠️ Product Owner: No description provided for app type detection');
+      return 'general';
+    }
+    
     const keywords = {
       'calculator': ['calculator', 'calcul', 'matematică', 'operații', 'addition', 'subtract', 'multiply', 'divide'],
       'dating': ['dating', 'întâlnir', 'relații', 'cuplu', 'partener', 'match'],
@@ -381,6 +387,11 @@ class SeniorProductOwnerAgent {
   }
 
   extractProblemStatement(description) {
+    // Safety check for undefined description
+    if (!description || typeof description !== 'string') {
+      return 'Solving general user needs for web application';
+    }
+    
     // Extract the core problem being solved
     const problemIndicators = ['problemă', 'dificultate', 'challenge', 'issue', 'nevoie'];
     

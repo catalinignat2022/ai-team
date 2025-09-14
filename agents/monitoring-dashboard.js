@@ -595,7 +595,7 @@ class MonitoringDashboard {
         </div>
     </div>
 
-    <script>
+    <script src="/js/dashboard.js"></script>
         const socket = io();
         
         // Initialize button event listeners
@@ -718,7 +718,6 @@ class MonitoringDashboard {
         
         // Initial data load
         refreshData();
-    </script>
 </body>
 </html>`;
   }

@@ -762,6 +762,12 @@ module.exports = app;`;
   }
 
   analyzeAppDescription(description) {
+    // Safety check for undefined description
+    if (!description || typeof description !== 'string') {
+      console.warn('⚠️ No description provided, using default analysis');
+      description = 'general application';
+    }
+    
     // Use 15+ years DevOps experience to analyze the app requirements
     const analysis = {
       type: 'web_application',
@@ -1179,7 +1185,7 @@ a:hover {
     const appName = productRequirements?.productVision?.valueProposition || 'Generated Application';
     
     // Generate specific interface based on app type
-    const specificContent = this.generateSpecificInterface(appType, designSystem);
+    const specificContent = this.generateSpecificInterface(appType, designSystem, analysis);
     
     return `<!DOCTYPE html>
 <html lang="ro">
@@ -1244,12 +1250,22 @@ a:hover {
 </html>`;
   }
 
-  // Generate external JavaScript file for CSP compliance
+  // Generate external JavaScript file for CSP compliance - DYNAMIC approach
   generateAppJavaScript(analysis) {
-    return `// CSP-compliant JavaScript - no external dependencies
+    const appType = this.detectAppTypeFromAnalysis(analysis);
+    const requirements = analysis?.productRequirements?.productVision || {};
+    const description = requirements.problemStatement || '';
+    
+    console.log('🔧 Generating dynamic JavaScript for:', appType, 'based on requirements');
+    
+    // Analyze requirements to determine needed JavaScript functions
+    const jsElements = this.analyzeJavaScriptRequirements(description, analysis);
+    
+    // Generate base JavaScript structure
+    let jsContent = `// CSP-compliant JavaScript - Generated dynamically based on requirements
 document.addEventListener('DOMContentLoaded', function() {
-  // Initialize app components
-  console.log('App initialized');
+  console.log('App initialized for: ${appType}');
+  console.log('Requirements analyzed and JavaScript generated dynamically');
   
   // Add event listeners to all buttons with data-action
   const buttons = document.querySelectorAll('[data-action]');
@@ -1260,32 +1276,159 @@ document.addEventListener('DOMContentLoaded', function() {
   function handleButtonClick(event) {
     const action = event.target.dataset.action;
     const target = event.target.dataset.target;
+    const value = event.target.dataset.value;
+    const inputTarget = event.target.dataset.inputTarget;
     
-    switch(action) {
-      case 'weather':
-        alert('Weather feature coming soon!');
-        break;
+    console.log('Action triggered:', action, 'Value:', value);
+    
+    switch(action) {`;
+
+    // Add dynamic action handlers based on analysis
+    jsElements.actions.forEach(actionConfig => {
+      jsContent += `
+      case '${actionConfig.name}':
+        ${actionConfig.handler}
+        break;`;
+    });
+
+    // Add default handlers
+    jsContent += `
       case 'demo':
         alert('Funcționalitate în dezvoltare!');
         break;
       case 'docs':
         alert('Documentație în curând!');
         break;
-      case 'send-message':
-        const input = document.getElementById(target);
-        if (input && input.value.trim()) {
-          alert('Message: ' + input.value);
-          input.value = '';
-        }
-        break;
-      case 'checkout':
-        alert('Checkout functionality coming soon!');
-        break;
       default:
-        console.log('Action:', action);
+        // Dynamic processing based on requirements
+        handleDynamicAction(action, value, inputTarget);
     }
   }
+  
+  // Dynamic action handler that adapts to any requirement
+  function handleDynamicAction(action, value, inputTarget) {
+    const input = inputTarget ? document.getElementById(inputTarget) : document.querySelector('input');
+    const display = document.querySelector('.dynamic-display');
+    
+    if (input && display) {
+      const inputValue = input.value.trim();
+      if (inputValue) {
+        // Process based on detected requirement type
+        ${this.generateDynamicProcessingLogic(description)}
+      }
+    }
+  }`;
+
+    // Add specialized functions based on requirements analysis
+    jsElements.functions.forEach(func => {
+      jsContent += `
+  
+  ${func.code}`;
+    });
+
+    jsContent += `
 });`;
+
+    return jsContent;
+  }
+
+  // Analyze JavaScript requirements from description
+  analyzeJavaScriptRequirements(description, analysis) {
+    const lowerDesc = description.toLowerCase();
+    const actions = [];
+    const functions = [];
+    
+    // Detect calculation requirements
+    if (lowerDesc.includes('calcul') || lowerDesc.includes('matematică')) {
+      actions.push({
+        name: 'calculate',
+        handler: 'performCalculation(inputTarget);'
+      });
+      functions.push({
+        name: 'performCalculation',
+        code: `function performCalculation(inputTarget) {
+    const input = document.getElementById(inputTarget);
+    const display = document.querySelector('.dynamic-display');
+    if (input && display) {
+      try {
+        const expression = input.value.trim();
+        const result = eval(expression); // In production, use a safe math parser
+        display.innerHTML = '<h3>Rezultat: ' + result + '</h3>';
+      } catch (error) {
+        display.innerHTML = '<p style="color: red;">Eroare: Expresie invalidă</p>';
+      }
+    }
+  }`
+      });
+    }
+    
+    // Detect search requirements
+    if (lowerDesc.includes('caut') || lowerDesc.includes('search')) {
+      actions.push({
+        name: 'search',
+        handler: 'performSearch(inputTarget);'
+      });
+      functions.push({
+        name: 'performSearch',
+        code: `function performSearch(inputTarget) {
+    const input = document.getElementById(inputTarget);
+    const display = document.querySelector('.dynamic-display');
+    if (input && display) {
+      const searchTerm = input.value.trim();
+      display.innerHTML = '<h3>Căutare pentru: "' + searchTerm + '"</h3><p>Rezultatele vor fi afișate aici...</p>';
+    }
+  }`
+      });
+    }
+    
+    // Detect add/save requirements
+    if (lowerDesc.includes('adaug') || lowerDesc.includes('salvez')) {
+      actions.push({
+        name: 'add',
+        handler: 'addItem(inputTarget);'
+      });
+      functions.push({
+        name: 'addItem',
+        code: `function addItem(inputTarget) {
+    const input = document.getElementById(inputTarget);
+    const display = document.querySelector('.dynamic-display');
+    if (input && display) {
+      const item = input.value.trim();
+      if (item) {
+        const currentContent = display.innerHTML;
+        const newItem = '<div style="padding: 10px; margin: 5px; background: white; border-radius: 5px;">' + item + '</div>';
+        display.innerHTML = newItem + currentContent;
+        input.value = '';
+      }
+    }
+  }`
+      });
+    }
+    
+    return { actions, functions };
+  }
+  
+  // Generate dynamic processing logic based on requirements
+  generateDynamicProcessingLogic(description) {
+    const lowerDesc = description.toLowerCase();
+    
+    if (lowerDesc.includes('calcul')) {
+      return `
+        try {
+          const result = eval(inputValue);
+          display.innerHTML = '<h3>Rezultat: ' + result + '</h3>';
+        } catch (error) {
+          display.innerHTML = '<p style="color: red;">Eroare în calcul</p>';
+        }`;
+    }
+    
+    if (lowerDesc.includes('caut') || lowerDesc.includes('search')) {
+      return `
+        display.innerHTML = '<h3>Căutare: "' + inputValue + '"</h3><p>Se procesează...</p>';`;
+    }
+    
+    return `
+      display.innerHTML = '<h3>Procesat: "' + inputValue + '"</h3><p>Rezultatul a fost procesat cu succes!</p>';`;
   }
 
   // Detect app type from analysis
@@ -1306,407 +1449,192 @@ document.addEventListener('DOMContentLoaded', function() {
     return analysis?.type || 'general';
   }
 
-  // Generate specific interface based on app type
-  generateSpecificInterface(appType, designSystem) {
-    const interfaces = {
-      'calculator': `
-        <div class="calculator">
-            <div class="display">
-                <input type="text" id="display" value="0" readonly style="
-                    width: 100%;
-                    padding: 20px;
-                    font-size: 2rem;
-                    text-align: right;
-                    border: none;
-                    background: #f8f9fa;
-                    border-radius: 10px;
-                    margin-bottom: 20px;
-                    font-family: 'Courier New', monospace;
-                ">
-            </div>
-            
-            <div class="buttons" style="
-                display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                gap: 15px;
-                margin-top: 20px;
-            ">
-                <button class="btn-calc clear" data-action="clear" style="
-                    grid-column: span 2;
-                    padding: 20px;
-                    font-size: 1.2rem;
-                    border: none;
-                    border-radius: 10px;
-                    background: #ff6b6b;
-                    color: white;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                ">Șterge</button>
-                
-                <button class="btn-calc operator" data-action="delete" style="
-                    padding: 20px;
-                    font-size: 1.2rem;
-                    border: none;
-                    border-radius: 10px;
-                    background: #feca57;
-                    color: white;
-                    cursor: pointer;
-                ">⌫</button>
-                
-                <button class="btn-calc operator" data-action="append" data-value="/" style="
-                    padding: 20px;
-                    font-size: 1.2rem;
-                    border: none;
-                    border-radius: 10px;
-                    background: var(--primary-color);
-                    color: white;
-                    cursor: pointer;
-                ">÷</button>
-                
-                <button class="btn-calc number" data-action="append" data-value="7">7</button>
-                <button class="btn-calc number" data-action="append" data-value="8">8</button>
-                <button class="btn-calc number" data-action="append" data-value="9">9</button>
-                <button class="btn-calc operator" data-action="append" data-value="*">×</button>
-                
-                <button class="btn-calc number" data-action="append" data-value="4">4</button>
-                <button class="btn-calc number" data-action="append" data-value="5">5</button>
-                <button class="btn-calc number" data-action="append" data-value="6">6</button>
-                <button class="btn-calc operator" data-action="append" data-value="-">-</button>
-                
-                <button class="btn-calc number" data-action="append" data-value="1">1</button>
-                <button class="btn-calc number" data-action="append" data-value="2">2</button>
-                <button class="btn-calc number" data-action="append" data-value="3">3</button>
-                <button class="btn-calc operator" data-action="append" data-value="+">+</button>
-                
-                <button class="btn-calc number zero" data-action="append" data-value="0" style="grid-column: span 2;">0</button>
-                <button class="btn-calc number" data-action="append" data-value=".">.</button>
-                <button class="btn-calc equals" data-action="calculate" style="
-                    background: var(--success-color);
-                    color: white;
-                ">=</button>
-            </div>
-        </div>
-        
-        <style>
-            .btn-calc {
-                padding: 20px;
-                font-size: 1.2rem;
-                border: none;
-                border-radius: 10px;
-                cursor: pointer;
-                transition: all 0.2s;
-                font-weight: 600;
-            }
-            
-            .btn-calc.number {
-                background: #f8f9fa;
-                color: #333;
-            }
-            
-            .btn-calc.number:hover {
-                background: #e9ecef;
-                transform: scale(0.95);
-            }
-            
-            .btn-calc.operator {
-                background: var(--primary-color);
-                color: white;
-            }
-            
-            .btn-calc.operator:hover {
-                opacity: 0.9;
-                transform: scale(0.95);
-            }
-        </style>
-        
-        <script>
-            let display = document.getElementById('display');
-            let currentInput = '0';
-            
-            function clearDisplay() {
-                currentInput = '0';
-                display.value = currentInput;
-            }
-            
-            function deleteLast() {
-                if (currentInput.length > 1) {
-                    currentInput = currentInput.slice(0, -1);
-                } else {
-                    currentInput = '0';
-                }
-                display.value = currentInput;
-            }
-            
-            function appendToDisplay(value) {
-                if (currentInput === '0' && value !== '.') {
-                    currentInput = value;
-                } else {
-                    currentInput += value;
-                }
-                display.value = currentInput;
-            }
-            
-            function calculate() {
-                try {
-                    // Replace display operators with JS operators
-                    let expression = currentInput.replace(/×/g, '*').replace(/÷/g, '/');
-                    let result = eval(expression);
-                    currentInput = result.toString();
-                    display.value = currentInput;
-                } catch (error) {
-                    display.value = 'Eroare';
-                    currentInput = '0';
-                }
-            }
-            
-            // Keyboard support
-            document.addEventListener('keydown', function(event) {
-                const key = event.key;
-                if ('0123456789'.includes(key)) {
-                    appendToDisplay(key);
-                } else if (['+', '-'].includes(key)) {
-                    appendToDisplay(key);
-                } else if (key === '*') {
-                    appendToDisplay('*');
-                } else if (key === '/') {
-                    event.preventDefault();
-                    appendToDisplay('/');
-                } else if (key === 'Enter' || key === '=') {
-                    event.preventDefault();
-                    calculate();
-                } else if (key === 'Escape') {
-                    clearDisplay();
-                } else if (key === 'Backspace') {
-                    event.preventDefault();
-                    deleteLast();
-                }
-            });
-        </script>
-      `,
-      
-      'todo': `
-        <div class="todo-app">
-            <div class="add-task" style="margin-bottom: 30px;">
-                <input type="text" id="taskInput" placeholder="Adaugă o sarcină nouă..." style="
-                    width: 70%;
-                    padding: 15px;
-                    border: 2px solid #e9ecef;
-                    border-radius: 10px;
-                    font-size: 1rem;
-                    margin-right: 10px;
-                ">
-                <button data-action="add-task" style="
-                    padding: 15px 25px;
-                    background: var(--primary-color);
-                    color: white;
-                    border: none;
-                    border-radius: 10px;
-                    cursor: pointer;
-                    font-size: 1rem;
-                ">Adaugă</button>
-            </div>
-            
-            <div id="todoList" style="
-                background: #f8f9fa;
-                border-radius: 15px;
-                padding: 20px;
-                min-height: 200px;
-            ">
-                <p style="text-align: center; color: #6c757d;">Nu ai încă sarcini. Adaugă prima!</p>
-            </div>
-        </div>
-        
-        <script>
-            let tasks = [];
-            
-            function addTask() {
-                const input = document.getElementById('taskInput');
-                const task = input.value.trim();
-                
-                if (task) {
-                    tasks.push({
-                        id: Date.now(),
-                        text: task,
-                        completed: false
-                    });
-                    input.value = '';
-                    renderTasks();
-                }
-            }
-            
-            function toggleTask(id) {
-                tasks = tasks.map(task => 
-                    task.id === id ? {...task, completed: !task.completed} : task
-                );
-                renderTasks();
-            }
-            
-            function deleteTask(id) {
-                tasks = tasks.filter(task => task.id !== id);
-                renderTasks();
-            }
-            
-            function renderTasks() {
-                const todoList = document.getElementById('todoList');
-                
-                if (tasks.length === 0) {
-                    todoList.innerHTML = '<p style="text-align: center; color: #6c757d;">Nu ai încă sarcini. Adaugă prima!</p>';
-                    return;
-                }
-                
-                todoList.innerHTML = tasks.map(task => \`
-                    <div style="
-                        display: flex;
-                        align-items: center;
-                        padding: 15px;
-                        margin-bottom: 10px;
-                        background: white;
-                        border-radius: 10px;
-                        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-                        \${task.completed ? 'opacity: 0.6;' : ''}
-                    ">
-                        <input type="checkbox" \${task.completed ? 'checked' : ''} 
-                               data-action="toggle-task" data-task-id="\${task.id}" style="margin-right: 15px;">
-                        <span style="
-                            flex: 1;
-                            \${task.completed ? 'text-decoration: line-through;' : ''}
-                        ">\${task.text}</span>
-                        <button data-action="delete-task" data-task-id="\${task.id}" style="
-                            background: #ff6b6b;
-                            color: white;
-                            border: none;
-                            padding: 5px 10px;
-                            border-radius: 5px;
-                            cursor: pointer;
-                        ">🗑️</button>
-                    </div>
-                \`).join('');
-            }
-            
-            // Add task on Enter key
-            document.getElementById('taskInput').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    addTask();
-                }
-            });
-        </script>
-      `,
-      
-      'weather': `
-        <div class="weather-app">
-            <div class="location-input" style="margin-bottom: 30px;">
-                <input type="text" id="cityInput" placeholder="Introdu orașul..." value="București" style="
-                    width: 70%;
-                    padding: 15px;
-                    border: 2px solid #e9ecef;
-                    border-radius: 10px;
-                    font-size: 1rem;
-                    margin-right: 10px;
-                ">
-                <button data-action="weather" style="
-                    padding: 15px 25px;
-                    background: var(--primary-color);
-                    color: white;
-                    border: none;
-                    border-radius: 10px;
-                    cursor: pointer;
-                ">Caută</button>
-            </div>
-            
-            <div id="weatherInfo" style="
-                background: linear-gradient(135deg, #74b9ff, #0984e3);
-                color: white;
-                padding: 30px;
-                border-radius: 20px;
-                text-align: center;
-            ">
-                <h2>☀️ București</h2>
-                <div style="font-size: 3rem; margin: 20px 0;">22°C</div>
-                <p style="font-size: 1.2rem;">Însorit</p>
-                <div style="display: flex; justify-content: space-around; margin-top: 20px;">
-                    <div>
-                        <div>Umiditate</div>
-                        <div style="font-weight: bold;">65%</div>
-                    </div>
-                    <div>
-                        <div>Vânt</div>
-                        <div style="font-weight: bold;">12 km/h</div>
-                    </div>
-                    <div>
-                        <div>Vizibilitate</div>
-                        <div style="font-weight: bold;">10 km</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <script>
-            function getWeather() {
-                const city = document.getElementById('cityInput').value || 'București';
-                // Simulate weather data - in real app would call weather API
-                const weatherData = {
-                    'București': {icon: '☀️', temp: '22°C', desc: 'Însorit', humidity: '65%', wind: '12 km/h'},
-                    'Cluj-Napoca': {icon: '⛅', temp: '18°C', desc: 'Parțial noros', humidity: '72%', wind: '8 km/h'},
-                    'Timișoara': {icon: '🌧️', temp: '15°C', desc: 'Ploios', humidity: '85%', wind: '15 km/h'}
-                };
-                
-                const data = weatherData[city] || weatherData['București'];
-                
-                document.getElementById('weatherInfo').innerHTML = \`
-                    <h2>\${data.icon} \${city}</h2>
-                    <div style="font-size: 3rem; margin: 20px 0;">\${data.temp}</div>
-                    <p style="font-size: 1.2rem;">\${data.desc}</p>
-                    <div style="display: flex; justify-content: space-around; margin-top: 20px;">
-                        <div>
-                            <div>Umiditate</div>
-                            <div style="font-weight: bold;">\${data.humidity}</div>
-                        </div>
-                        <div>
-                            <div>Vânt</div>
-                            <div style="font-weight: bold;">\${data.wind}</div>
-                        </div>
-                        <div>
-                            <div>Vizibilitate</div>
-                            <div style="font-weight: bold;">10 km</div>
-                        </div>
-                    </div>
-                \`;
-            }
-        </script>
-      `
-    };
+  // Generate specific interface based on app requirements dynamically
+  generateSpecificInterface(appType, designSystem, analysis) {
+    console.log('🎨 Generating dynamic interface for:', appType);
     
-    return interfaces[appType] || `
-      <div class="welcome-message">
-          <h2>🎉 Aplicația ta a fost generată cu succes!</h2>
-          <p>Această aplicație a fost creată prin colaborarea profesionistă a echipei AI:</p>
-          <ul style="text-align: left; max-width: 400px; margin: 20px auto;">
-              <li><strong>Product Owner</strong> - Analiză cerințe</li>
-              <li><strong>Senior Designer</strong> - Design system</li>
-              <li><strong>DevOps Agent</strong> - Implementare</li>
-          </ul>
-          <div style="margin-top: 30px;">
-              <button style="
-                  padding: 15px 30px;
-                  background: var(--primary-color);
-                  color: white;
-                  border: none;
-                  border-radius: 10px;
-                  font-size: 1.1rem;
-                  cursor: pointer;
-                  margin: 0 10px;
-              " data-action="demo">Începe</button>
-              <button style="
-                  padding: 15px 30px;
-                  background: transparent;
-                  color: var(--primary-color);
-                  border: 2px solid var(--primary-color);
-                  border-radius: 10px;
-                  font-size: 1.1rem;
-                  cursor: pointer;
-                  margin: 0 10px;
-              " data-action="docs">Documentație</button>
-          </div>
+    // Extract requirements from analysis
+    const requirements = analysis?.productRequirements?.productVision || {};
+    const features = analysis?.features || [];
+    const description = requirements.problemStatement || '';
+    
+    // Use AI-like reasoning to determine interface elements
+    const interfaceElements = this.analyzeAndGenerateInterface(description, features, requirements);
+    
+    return this.buildInterfaceHTML(interfaceElements, designSystem);
+  }
+
+  // AI-powered interface analysis and generation
+  analyzeAndGenerateInterface(description, features, requirements) {
+    console.log('🧠 Analyzing requirements for interface generation...');
+    
+    const elements = [];
+    const lowerDesc = description.toLowerCase();
+    
+    // Dynamic input detection
+    if (lowerDesc.includes('input') || lowerDesc.includes('introdu') || lowerDesc.includes('text') || 
+        lowerDesc.includes('număr') || lowerDesc.includes('calcul') || lowerDesc.includes('sarcin')) {
+      elements.push({
+        type: 'input',
+        purpose: this.extractInputPurpose(lowerDesc),
+        placeholder: this.generatePlaceholder(lowerDesc)
+      });
+    }
+    
+    // Dynamic button detection
+    const buttonWords = ['calcul', 'adaug', 'caut', 'trimite', 'proceseaz', 'genereaz', 'salvez', 'șterge'];
+    buttonWords.forEach(word => {
+      if (lowerDesc.includes(word)) {
+        elements.push({
+          type: 'button',
+          action: this.mapWordToAction(word),
+          label: this.generateButtonLabel(word, lowerDesc)
+        });
+      }
+    });
+    
+    // Dynamic display detection
+    if (lowerDesc.includes('afișez') || lowerDesc.includes('rezultat') || lowerDesc.includes('listă') ||
+        lowerDesc.includes('output') || lowerDesc.includes('display')) {
+      elements.push({
+        type: 'display',
+        purpose: this.extractDisplayPurpose(lowerDesc)
+      });
+    }
+    
+    // If no specific elements detected, create generic interface
+    if (elements.length === 0) {
+      elements.push(
+        { type: 'input', purpose: 'general', placeholder: 'Introdu datele...' },
+        { type: 'button', action: 'process', label: 'Procesează' },
+        { type: 'display', purpose: 'results' }
+      );
+    }
+    
+    return elements;
+  }
+
+  // Helper methods for dynamic interface generation
+  extractInputPurpose(description) {
+    if (description.includes('număr') || description.includes('calcul')) return 'numeric';
+    if (description.includes('oraș') || description.includes('locație')) return 'location';
+    if (description.includes('sarcin') || description.includes('task')) return 'task';
+    if (description.includes('mesaj') || description.includes('text')) return 'message';
+    return 'general';
+  }
+  
+  generatePlaceholder(description) {
+    if (description.includes('calcul')) return 'Introdu expresia matematică...';
+    if (description.includes('oraș')) return 'Introdu orașul...';
+    if (description.includes('sarcin')) return 'Adaugă o sarcină nouă...';
+    if (description.includes('mesaj')) return 'Scrie mesajul...';
+    return 'Introdu datele...';
+  }
+  
+  mapWordToAction(word) {
+    const actionMap = {
+      'calcul': 'calculate',
+      'adaug': 'add',
+      'caut': 'search',
+      'trimite': 'send',
+      'proceseaz': 'process',
+      'genereaz': 'generate',
+      'salvez': 'save',
+      'șterge': 'clear'
+    };
+    return actionMap[word] || 'process';
+  }
+  
+  generateButtonLabel(word, description) {
+    if (word === 'calcul') return 'Calculează';
+    if (word === 'adaug') return 'Adaugă';
+    if (word === 'caut') return 'Caută';
+    if (word === 'trimite') return 'Trimite';
+    if (word === 'șterge') return 'Șterge';
+    return 'Procesează';
+  }
+  
+  extractDisplayPurpose(description) {
+    if (description.includes('rezultat')) return 'results';
+    if (description.includes('listă')) return 'list';
+    if (description.includes('grafic')) return 'chart';
+    return 'content';
+  }
+
+  // Build HTML from interface elements
+  buildInterfaceHTML(elements, designSystem) {
+    let html = '<div class="dynamic-interface">';
+    
+    elements.forEach((element, index) => {
+      switch(element.type) {
+        case 'input':
+          html += this.generateInputHTML(element, index);
+          break;
+        case 'button':
+          html += this.generateButtonHTML(element, index);
+          break;
+        case 'display':
+          html += this.generateDisplayHTML(element, index);
+          break;
+      }
+    });
+    
+    html += '</div>';
+    return html;
+  }
+
+  generateInputHTML(element, index) {
+    return `
+      <div class="input-group" style="margin-bottom: 20px;">
+        <input 
+          type="text" 
+          id="dynamicInput${index}" 
+          placeholder="${element.placeholder}"
+          style="
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+          "
+        >
+      </div>
+    `;
+  }
+
+  generateButtonHTML(element, index) {
+    return `
+      <button 
+        data-action="${element.action}" 
+        data-input-target="dynamicInput0"
+        style="
+          padding: 15px 25px;
+          background: var(--primary-color);
+          color: white;
+          border: none;
+          border-radius: 10px;
+          cursor: pointer;
+          font-size: 1rem;
+          margin: 5px;
+        "
+      >${element.label}</button>
+    `;
+  }
+
+  generateDisplayHTML(element, index) {
+    return `
+      <div 
+        id="dynamicDisplay${index}" 
+        class="dynamic-display"
+        style="
+          background: #f8f9fa;
+          border-radius: 15px;
+          padding: 20px;
+          min-height: 100px;
+          margin-top: 20px;
+        "
+      >
+        <p style="text-align: center; color: #6c757d;">Rezultatele vor apărea aici...</p>
       </div>
     `;
   }
