@@ -20,11 +20,17 @@ router.get('/health', (req, res) => {
 // Main API endpoint for creating apps
 router.post('/api/create-app', async (req, res) => {
     try {
+        console.log('🔍 DEBUG: Request body received:', JSON.stringify(req.body, null, 2));
         const { description, timestamp } = req.body;
+        console.log('🔍 DEBUG: Extracted description:', description);
+        console.log('🔍 DEBUG: Description length:', description ? description.length : 'undefined');
         
         if (!description || description.trim().length < 10) {
+            console.log('❌ DEBUG: Validation failed - description too short or missing');
             return res.status(400).json({
-                error: 'Descrierea aplicației trebuie să aibă cel puțin 10 caractere',
+                success: false,
+                message: 'Te rog să descrii aplicația pe care vrei să o creez (minim 10 caractere).',
+                error_type: 'validation_error',
                 code: 'INVALID_DESCRIPTION'
             });
         }

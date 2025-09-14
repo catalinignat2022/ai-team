@@ -1,8 +1,14 @@
-# 🤖 AI Development Team - Complete Application Builder
+# 🚀 AI Team - DevOps AI Agent with App Creator
 
-O echipă completă de agenți AI cu 10+ ani experiență fiecare, capabilă să dezvolte orice aplicație de la A la Z cu deploy automat pe Railway.com.
+## 🌐 Live Application
 
-## 🎯 **Echipa AI Completă**
+**Frontend:** https://ai-team-production-fc2d.up.railway.app  
+**API Health:** https://ai-team-production-fc2d.up.railway.app/health  
+**API Status:** https://ai-team-production-fc2d.up.railway.app/api/status
+
+O echipă completă de agenți AI cu 15+ ani experiență DevOps, capabilă să dezvolte orice aplicație de la A la Z cu deploy automat pe Railway.com.
+
+## 🎯 **What This Application Does**
 
 ### **🎭 Orchestrator Agent** - Team Lead (15+ ani)
 - Coordonează întreaga echipă și workflow
