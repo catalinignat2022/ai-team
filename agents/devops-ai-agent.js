@@ -969,7 +969,7 @@ app.get('/', (req, res) => {
 // Health check
 app.get('/health', (req, res) => {
   res.json({ 
-    status: 'healthy', 
+    status: 'OK', 
     timestamp: new Date().toISOString(),
     service: '${analysis.type}',
     version: '1.0.0'
