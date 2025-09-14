@@ -386,6 +386,355 @@ class SeniorProductOwnerAgent {
     }];
   }
 
+  // Extract demographic clues from user description
+  extractDemographicClues(description) {
+    const clues = {
+      ageIndicators: [],
+      locationIndicators: [],
+      behaviorIndicators: [],
+      technologyPreferences: []
+    };
+    
+    const lowerDesc = description.toLowerCase();
+    
+    // Age indicators
+    if (lowerDesc.includes('tiner') || lowerDesc.includes('student')) {
+      clues.ageIndicators.push('young');
+    }
+    if (lowerDesc.includes('profesionist') || lowerDesc.includes('carieră')) {
+      clues.ageIndicators.push('professional');
+    }
+    if (lowerDesc.includes('familie') || lowerDesc.includes('copii')) {
+      clues.ageIndicators.push('mature');
+    }
+    
+    // Location indicators
+    if (lowerDesc.includes('romania') || lowerDesc.includes('român')) {
+      clues.locationIndicators.push('romania');
+    }
+    if (lowerDesc.includes('local') || lowerDesc.includes('apropie')) {
+      clues.locationIndicators.push('local');
+    }
+    
+    // Behavior indicators
+    if (lowerDesc.includes('rapid') || lowerDesc.includes('eficient')) {
+      clues.behaviorIndicators.push('efficiency-focused');
+    }
+    if (lowerDesc.includes('siguranță') || lowerDesc.includes('securitate')) {
+      clues.behaviorIndicators.push('security-conscious');
+    }
+    
+    return clues;
+  }
+
+  // Parse mentioned features from description
+  parseMentionedFeatures(description) {
+    const mentionedFeatures = [];
+    const lowerDesc = description.toLowerCase();
+    
+    const featureKeywords = {
+      'autentificare': 'User Authentication',
+      'login': 'User Authentication',
+      'cont': 'User Accounts',
+      'profil': 'User Profiles',
+      'poză': 'Photo Upload',
+      'imagine': 'Photo Upload',
+      'mesaj': 'Messaging System',
+      'chat': 'Messaging System',
+      'notificar': 'Push Notifications',
+      'căutare': 'Search Functionality',
+      'filtru': 'Search & Filters',
+      'plată': 'Payment Processing',
+      'cumpăr': 'Shopping Cart',
+      'siguranță': 'Safety Features',
+      'securitate': 'Safety Features',
+      'locație': 'Location Services',
+      'gps': 'Location Services',
+      'video': 'Video Features',
+      'apel': 'Video Calling'
+    };
+    
+    Object.entries(featureKeywords).forEach(([keyword, feature]) => {
+      if (lowerDesc.includes(keyword) && !mentionedFeatures.includes(feature)) {
+        mentionedFeatures.push(feature);
+      }
+    });
+    
+    return mentionedFeatures;
+  }
+
+  // Define design KPIs based on product requirements
+  defineDesignKPIs(productRequirements) {
+    const appType = this.detectAppType(productRequirements.productVision?.problemStatement || '');
+    
+    const kpisByType = {
+      'dating': [
+        'User registration completion rate',
+        'Profile completion rate', 
+        'Match interaction rate',
+        'Message response rate',
+        'User retention (7-day, 30-day)'
+      ],
+      'ecommerce': [
+        'Conversion rate',
+        'Cart abandonment rate',
+        'Product page engagement',
+        'Checkout completion rate',
+        'Customer satisfaction score'
+      ],
+      'productivity': [
+        'Task completion rate',
+        'User engagement time',
+        'Feature adoption rate',
+        'User productivity metrics',
+        'Support ticket reduction'
+      ]
+    };
+    
+    return kpisByType[appType] || kpisByType['productivity'];
+  }
+
+  // Identify design constraints
+  identifyDesignConstraints(productRequirements) {
+    return {
+      technical: [
+        'Mobile-first responsive design',
+        'Cross-browser compatibility',
+        'Accessibility compliance (WCAG 2.1)',
+        'Performance optimization'
+      ],
+      business: [
+        'Brand consistency',
+        'Budget limitations',
+        'Timeline constraints',
+        'Regulatory compliance'
+      ],
+      user: [
+        'Multi-language support (Romanian/English)',
+        'Various skill levels',
+        'Different device capabilities',
+        'Connectivity variations'
+      ]
+    };
+  }
+
+  // Define user journeys based on product requirements
+  defineUserJourneys(productRequirements) {
+    const appType = this.detectAppType(productRequirements.productVision?.problemStatement || '');
+    
+    const journeysByType = {
+      'dating': [
+        {
+          journey: 'New User Onboarding',
+          steps: ['Discovery', 'Registration', 'Profile Creation', 'First Browse', 'First Match']
+        },
+        {
+          journey: 'Matching Process',
+          steps: ['Browse Profiles', 'Apply Filters', 'View Profile', 'Like/Pass', 'Match Notification']
+        }
+      ],
+      'ecommerce': [
+        {
+          journey: 'Purchase Flow',
+          steps: ['Product Discovery', 'Product View', 'Add to Cart', 'Checkout', 'Payment', 'Confirmation']
+        }
+      ],
+      'productivity': [
+        {
+          journey: 'Task Management',
+          steps: ['Login', 'View Dashboard', 'Create Task', 'Organize Tasks', 'Complete Task']
+        }
+      ]
+    };
+    
+    return journeysByType[appType] || journeysByType['productivity'];
+  }
+
+  // Extract user pain points from requirements
+  extractUserPainPoints(productRequirements) {
+    const appType = this.detectAppType(productRequirements.productVision?.problemStatement || '');
+    
+    const painPointsByType = {
+      'dating': [
+        'Difficulty finding compatible matches',
+        'Safety and privacy concerns',
+        'Fake profiles and catfishing',
+        'Limited time for dating',
+        'Overwhelming number of options'
+      ],
+      'ecommerce': [
+        'Complicated checkout process',
+        'Unclear product information',
+        'High shipping costs',
+        'Trust and security concerns',
+        'Poor search functionality'
+      ],
+      'productivity': [
+        'Information overload',
+        'Tool fragmentation',
+        'Poor collaboration',
+        'Time management issues',
+        'Lack of visibility into progress'
+      ]
+    };
+    
+    return painPointsByType[appType] || painPointsByType['productivity'];
+  }
+
+  // Extract user goals from requirements
+  extractUserGoals(productRequirements) {
+    const appType = this.detectAppType(productRequirements.productVision?.problemStatement || '');
+    
+    const goalsByType = {
+      'dating': [
+        'Find meaningful relationships',
+        'Meet compatible people',
+        'Feel safe while dating',
+        'Save time in partner search',
+        'Build genuine connections'
+      ],
+      'ecommerce': [
+        'Find products quickly',
+        'Make informed decisions',
+        'Complete purchases easily',
+        'Get good value for money',
+        'Receive products on time'
+      ],
+      'productivity': [
+        'Increase efficiency',
+        'Better organize work',
+        'Improve collaboration',
+        'Track progress effectively',
+        'Reduce manual work'
+      ]
+    };
+    
+    return goalsByType[appType] || goalsByType['productivity'];
+  }
+
+  // Define brand personality based on product requirements
+  defineBrandPersonality(productRequirements) {
+    const appType = this.detectAppType(productRequirements.productVision?.problemStatement || '');
+    
+    const personalityByType = {
+      'dating': {
+        primary: ['Trustworthy', 'Warm', 'Inclusive'],
+        secondary: ['Sophisticated', 'Playful', 'Supportive'],
+        tone: 'Friendly yet professional, romantic but not cheesy'
+      },
+      'ecommerce': {
+        primary: ['Reliable', 'Efficient', 'Trustworthy'],
+        secondary: ['Modern', 'Helpful', 'Transparent'],
+        tone: 'Professional, helpful, and confidence-inspiring'
+      },
+      'productivity': {
+        primary: ['Efficient', 'Organized', 'Reliable'],
+        secondary: ['Modern', 'Clean', 'Supportive'],
+        tone: 'Professional, clear, and empowering'
+      }
+    };
+    
+    return personalityByType[appType] || personalityByType['productivity'];
+  }
+
+  // Define accessibility requirements
+  defineAccessibilityRequirements() {
+    return {
+      standards: 'WCAG 2.1 AA compliance',
+      requirements: [
+        'Keyboard navigation support',
+        'Screen reader compatibility',
+        'High contrast mode support',
+        'Text scaling up to 200%',
+        'Alternative text for images',
+        'Focus indicators',
+        'Semantic HTML structure',
+        'Color contrast ratios',
+        'Motion reduction options'
+      ],
+      testing: [
+        'Automated accessibility testing',
+        'Manual testing with assistive technologies',
+        'User testing with disabled users'
+      ]
+    };
+  }
+
+  // Define device support requirements
+  defineDeviceSupport() {
+    return {
+      desktop: ['Windows 10+', 'macOS 10.15+', 'Linux Ubuntu 18+'],
+      mobile: ['iOS 14+', 'Android 8+'],
+      browsers: ['Chrome 90+', 'Firefox 88+', 'Safari 14+', 'Edge 90+'],
+      responsive: ['Mobile-first design', 'Tablet optimization', 'Desktop enhancement'],
+      performance: ['Fast 3G network support', 'Offline functionality', 'Progressive Web App']
+    };
+  }
+
+  // Define performance requirements
+  definePerformanceRequirements() {
+    return {
+      loading: ['Initial page load < 3 seconds', 'Subsequent loads < 1 second'],
+      interactivity: ['First input delay < 100ms', 'Time to interactive < 3 seconds'],
+      visual: ['Largest contentful paint < 2.5 seconds', 'Cumulative layout shift < 0.1'],
+      runtime: ['Smooth 60fps animations', 'Memory usage optimization'],
+      network: ['Efficient data usage', 'Graceful degradation on slow connections']
+    };
+  }
+
+  // Estimate project timeline based on complexity
+  estimateProjectTimeline(productRequirements) {
+    const featureCount = productRequirements.coreFeatures?.length || 5;
+    const complexityScore = this.calculateComplexityScore(productRequirements);
+    
+    const baseWeeks = Math.ceil(featureCount * 0.5 + complexityScore * 2);
+    
+    return {
+      discovery: '1-2 weeks',
+      design: `${Math.ceil(baseWeeks * 0.3)} weeks`,
+      development: `${Math.ceil(baseWeeks * 0.6)} weeks`,
+      testing: `${Math.ceil(baseWeeks * 0.1)} weeks`,
+      total: `${baseWeeks} weeks`
+    };
+  }
+
+  // Calculate complexity score
+  calculateComplexityScore(productRequirements) {
+    let score = 1; // Base complexity
+    
+    const features = productRequirements.coreFeatures || [];
+    const technologies = productRequirements.technicalRequirements || {};
+    
+    // Add complexity for advanced features
+    const complexFeatures = ['Real-time Communication', 'Payment Processing', 'AI/ML Features', 'Video Calling'];
+    complexFeatures.forEach(feature => {
+      if (features.some(f => f.feature === feature)) {
+        score += 1;
+      }
+    });
+    
+    // Add complexity for integrations
+    if (technologies.integrations?.length > 0) {
+      score += 0.5 * technologies.integrations.length;
+    }
+    
+    return Math.min(score, 5); // Cap at 5
+  }
+
+  // Estimate design budget
+  estimateDesignBudget(productRequirements) {
+    const timeline = this.estimateProjectTimeline(productRequirements);
+    const totalWeeks = parseInt(timeline.total);
+    
+    return {
+      designSystem: '$2,000 - $5,000',
+      uiDesign: `$${totalWeeks * 500} - $${totalWeeks * 1000}`,
+      prototyping: '$1,000 - $3,000',
+      userTesting: '$500 - $2,000',
+      total: `$${totalWeeks * 500 + 3500} - $${totalWeeks * 1000 + 10000}`
+    };
+  }
+
   // Get product analysis summary
   getProductAnalysis() {
     return {
