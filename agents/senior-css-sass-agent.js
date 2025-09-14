@@ -410,11 +410,21 @@ class SeniorCSSsassAgent {
         </main>
     </div>
     
-    <script>
-      ${await this.generatePerfectJavaScript(appStructure)}
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>`;
+  }
+
+  // Generate external JavaScript file for CSP compliance
+  async generateJavaScriptFile(appStructure) {
+    console.log('🔧 Generating external JavaScript file for CSP compliance...');
+    
+    const jsContent = await this.generatePerfectJavaScript(appStructure);
+    
+    return {
+      filename: 'app.js',
+      content: jsContent
+    };
   }
 
   // Validate CSS and test for production readiness and CSP compliance
@@ -478,9 +488,12 @@ class SeniorCSSsassAgent {
       validation.hasInlineCSS = true;
     }
     
-    // Check for inline JavaScript
+    // Check for inline JavaScript (CSP violation)
     if (htmlContent.includes('<script>') && !htmlContent.includes('src=')) {
       validation.hasJavaScript = true;
+      validation.cspCompliant = false;
+      validation.cspIssues.push('CSP Violation: Inline JavaScript not allowed');
+      validation.errors.push('CRITICAL: CSP violation - inline JavaScript blocked');
     }
     
     // Check CSS modules
@@ -1588,11 +1601,14 @@ p {
       recommendations: []
     };
 
-    // Check for duplicate variable declarations
-    const jsMatches = htmlContent.match(/<script>([\s\S]*?)<\/script>/g);
+    // Check for CSP-violating inline scripts (now flagged as errors)
+    const jsMatches = htmlContent.match(/<script(?!\s+src=)[^>]*>([\s\S]*?)<\/script>/g);
     if (jsMatches) {
+      validation.isValid = false;
+      validation.errors.push('CSP Violation: Inline scripts detected - all JavaScript must be in external files');
+      
       jsMatches.forEach(script => {
-        const jsContent = script.replace(/<\/?script>/g, '');
+        const jsContent = script.replace(/<\/?script[^>]*>/g, '');
         const lines = jsContent.split('\n');
         const declaredVars = new Set();
         

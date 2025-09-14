@@ -868,8 +868,11 @@ module.exports = app;`;
         }
       }
       
-      // Enhanced HTML with design system (all CSS and JS inline for CSP compliance)
+      // Enhanced HTML with design system (CSP compliant - external JS)
       structure['views/index.html'] = this.generateEnhancedHTML(analysis);
+      
+      // Generate external JavaScript file for CSP compliance
+      structure['public/js/app.js'] = this.generateAppJavaScript(analysis);
       
       // Design system documentation
       structure['docs/design-system.md'] = this.generateDesignSystemDocs(analysis.designSystem);
@@ -1236,50 +1239,53 @@ a:hover {
         </main>
     </div>
     
-    <script>
-      // CSP-compliant JavaScript - no external dependencies
-      document.addEventListener('DOMContentLoaded', function() {
-        // Initialize app components
-        console.log('App initialized');
-        
-        // Add event listeners to all buttons with data-action
-        const buttons = document.querySelectorAll('[data-action]');
-        buttons.forEach(button => {
-          button.addEventListener('click', handleButtonClick);
-        });
-        
-        function handleButtonClick(event) {
-          const action = event.target.dataset.action;
-          const target = event.target.dataset.target;
-          
-          switch(action) {
-            case 'weather':
-              alert('Weather feature coming soon!');
-              break;
-            case 'demo':
-              alert('Funcționalitate în dezvoltare!');
-              break;
-            case 'docs':
-              alert('Documentație în curând!');
-              break;
-            case 'send-message':
-              const input = document.getElementById(target);
-              if (input && input.value.trim()) {
-                alert('Message: ' + input.value);
-                input.value = '';
-              }
-              break;
-            case 'checkout':
-              alert('Checkout functionality coming soon!');
-              break;
-            default:
-              console.log('Action:', action);
-          }
-        }
-      });
-    </script>
+    <script src="/js/app.js"></script>
 </body>
 </html>`;
+  }
+
+  // Generate external JavaScript file for CSP compliance
+  generateAppJavaScript(analysis) {
+    return `// CSP-compliant JavaScript - no external dependencies
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize app components
+  console.log('App initialized');
+  
+  // Add event listeners to all buttons with data-action
+  const buttons = document.querySelectorAll('[data-action]');
+  buttons.forEach(button => {
+    button.addEventListener('click', handleButtonClick);
+  });
+  
+  function handleButtonClick(event) {
+    const action = event.target.dataset.action;
+    const target = event.target.dataset.target;
+    
+    switch(action) {
+      case 'weather':
+        alert('Weather feature coming soon!');
+        break;
+      case 'demo':
+        alert('Funcționalitate în dezvoltare!');
+        break;
+      case 'docs':
+        alert('Documentație în curând!');
+        break;
+      case 'send-message':
+        const input = document.getElementById(target);
+        if (input && input.value.trim()) {
+          alert('Message: ' + input.value);
+          input.value = '';
+        }
+        break;
+      case 'checkout':
+        alert('Checkout functionality coming soon!');
+        break;
+      default:
+        console.log('Action:', action);
+    }
+  }
+});`;
   }
 
   // Detect app type from analysis
