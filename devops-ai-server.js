@@ -132,9 +132,12 @@ class DevOpsAIServer {
     // API endpoint for creating applications
     this.app.post('/api/create-app', async (req, res) => {
       try {
-        const { request, timestamp, client_info } = req.body;
+        const { description, request, timestamp, client_info } = req.body;
         
-        if (!request || request.trim().length < 10) {
+        // Accept both 'description' and 'request' for backward compatibility
+        const appDescription = description || request;
+        
+        if (!appDescription || appDescription.trim().length < 10) {
           return res.status(400).json({
             success: false,
             message: 'Te rog să descrii aplicația pe care vrei să o creez (minim 10 caractere).',
@@ -143,13 +146,13 @@ class DevOpsAIServer {
         }
         
         console.log('🤖 DevOps AI Agent: Creating new app...');
-        console.log('📝 Request:', request);
+        console.log('📝 Description:', appDescription);
         console.log('⏰ Timestamp:', timestamp);
         console.log('💻 Client info:', client_info);
         
         // Process the app creation request using DevOps AI Agent
         const result = await this.devopsAgent.createApplication({
-          description: request,
+          description: appDescription,
           timestamp,
           clientInfo: client_info
         });
@@ -160,8 +163,8 @@ class DevOpsAIServer {
         this.dashboard.createAlert({
           type: 'APP_CREATION_REQUESTED',
           severity: 'INFO',
-          message: `New app creation request: ${request.substring(0, 100)}...`,
-          data: { request, result }
+          message: `New app creation request: ${appDescription.substring(0, 100)}...`,
+          data: { description: appDescription, result }
         });
         
         res.json(result);
@@ -173,7 +176,7 @@ class DevOpsAIServer {
           type: 'APP_CREATION_FAILED',
           severity: 'ERROR',
           message: `App creation failed: ${error.message}`,
-          data: { error: error.message, request: req.body?.request }
+          data: { error: error.message, description: req.body?.description || req.body?.request }
         });
         
         res.status(500).json({
@@ -211,7 +214,7 @@ class DevOpsAIServer {
       });
     });
 
-    // Health check endpoint - Fixed for Railway frontend compatibility
+    // Health check endpoint - Fixed for Railway frontend compatibility v2
     this.app.get('/health', (req, res) => {
       res.json({
         status: 'OK',
