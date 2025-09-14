@@ -91,10 +91,15 @@ class SeniorDesignerAgent {
 
   // Create brand identity
   async createBrandIdentity(designBrief) {
-    const { appType, designDirection } = designBrief;
+    // Handle different input structures
+    const appType = designBrief?.appType || 'general';
+    const designDirection = designBrief?.designDirection || { mood: 'professional' };
+    const projectOverview = designBrief?.projectOverview || 
+                           designBrief?.productVision?.problemStatement || 
+                           'Modern application';
     
     return {
-      brandName: designBrief.projectOverview.split(' ')[0] || 'App',
+      brandName: projectOverview.split(' ')[0] || 'App',
       tagline: this.generateTagline(appType),
       personality: designDirection.mood,
       values: this.defineBrandValues(appType),

@@ -78,6 +78,11 @@ class SeniorProductOwnerAgent {
     const problemStatement = this.extractProblemStatement(userDescription);
     
     const visionTemplates = {
+      'calculator': {
+        vision: 'To provide fast, accurate, and beautiful mathematical calculations',
+        mission: 'Making complex calculations simple and accessible to everyone',
+        valueProposition: 'Perform calculations with exceptional design and user experience'
+      },
       'dating': {
         vision: 'To help people find meaningful connections and build lasting relationships',
         mission: 'Creating a safe, inclusive platform where authentic connections flourish',
@@ -102,6 +107,36 @@ class SeniorProductOwnerAgent {
         vision: 'To make health and wellness accessible, personalized, and sustainable',
         mission: 'Empowering individuals to take control of their health journey',
         valueProposition: 'Achieve your health goals with personalized guidance and support'
+      },
+      'weather': {
+        vision: 'To provide accurate, beautiful weather information when you need it',
+        mission: 'Making weather data accessible and actionable for daily decisions',
+        valueProposition: 'Get precise weather insights with stunning visual design'
+      },
+      'todo': {
+        vision: 'To help people organize their tasks and achieve their goals',
+        mission: 'Simplifying task management with intuitive and powerful tools',
+        valueProposition: 'Stay organized and productive with effortless task management'
+      },
+      'notes': {
+        vision: 'To capture, organize, and find your thoughts and ideas effortlessly',
+        mission: 'Creating the perfect digital notebook for modern life',
+        valueProposition: 'Never lose an idea again with intelligent note-taking'
+      },
+      'timer': {
+        vision: 'To help people manage time effectively and stay focused',
+        mission: 'Providing precision timing tools for productivity and focus',
+        valueProposition: 'Master your time with beautiful, functional timers'
+      },
+      'converter': {
+        vision: 'To make unit and currency conversions instant and accurate',
+        mission: 'Simplifying conversions for global communication and commerce',
+        valueProposition: 'Convert anything, instantly, with precision and style'
+      },
+      'game': {
+        vision: 'To create engaging, fun experiences that bring joy and challenge',
+        mission: 'Crafting memorable games that entertain and inspire',
+        valueProposition: 'Discover amazing games with exceptional design and gameplay'
       }
     };
     
@@ -319,15 +354,23 @@ class SeniorProductOwnerAgent {
   // Helper methods
   detectAppType(description) {
     const keywords = {
+      'calculator': ['calculator', 'calcul', 'matematică', 'operații', 'addition', 'subtract', 'multiply', 'divide'],
       'dating': ['dating', 'întâlnir', 'relații', 'cuplu', 'partener', 'match'],
       'ecommerce': ['magazin', 'shop', 'vânzare', 'produs', 'cumpăr', 'plată'],
       'social': ['social', 'prieten', 'urmări', 'follow', 'like', 'post', 'comunitate'],
       'productivity': ['task', 'sarcin', 'productivity', 'organizare', 'planificare', 'management'],
-      'health': ['sănătate', 'fitness', 'sport', 'medical', 'doctor', 'wellness']
+      'health': ['sănătate', 'fitness', 'sport', 'medical', 'doctor', 'wellness'],
+      'weather': ['weather', 'vreme', 'meteo', 'temperatură', 'forecast'],
+      'todo': ['todo', 'listă', 'sarcini', 'task', 'reminder'],
+      'notes': ['notes', 'notițe', 'jurnal', 'diary', 'writing'],
+      'timer': ['timer', 'cronometru', 'countdown', 'pomodoro', 'time'],
+      'converter': ['converter', 'convert', 'transform', 'units', 'currency'],
+      'game': ['joc', 'game', 'play', 'score', 'level']
     };
     
     const lowerDesc = description.toLowerCase();
     
+    // First check for specific app types
     for (const [type, typeKeywords] of Object.entries(keywords)) {
       if (typeKeywords.some(keyword => lowerDesc.includes(keyword))) {
         return type;

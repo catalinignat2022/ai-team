@@ -639,41 +639,56 @@ module.exports = app;`;
       console.log('🧩 Step 3: Creating comprehensive design system...');
       const designSystem = await designer.createDesignSystem(designCollaboration.designCollaboration.designBrief);
       
-      // Step 4: Generate implementation guide for frontend
-      console.log('⚙️ Step 4: Creating implementation guide...');
+      // Step 4: CSS Agent creates advanced styling architecture
+      console.log('🎨 Step 4: CSS Agent creating advanced styling architecture...');
+      const SeniorCSSsassAgent = require('./senior-css-sass-agent');
+      const cssAgent = new SeniorCSSsassAgent();
+      
+      // CSS Agent collaborates with Designer
+      const designerCollaboration = await cssAgent.collaborateWithDesignerAgent(designSystem, designCollaboration.designTokens);
+      const advancedStyling = await cssAgent.createAdvancedStyling(designSystem, {}, analysis?.type || 'general');
+      
+      // Step 5: Generate implementation guide for frontend
+      console.log('⚙️ Step 5: Creating implementation guide...');
       const implementationGuide = await designer.collaborateWithFrontendDeveloper(
         designSystem, 
         productRequirements.technicalRequirements
       );
       
-      // Step 5: Generate repository structure with design system
-      console.log('🏗️ Step 5: Generating repository structure...');
+      // Step 6: Generate repository structure with design system and advanced styling
+      console.log('🏗️ Step 6: Generating repository structure...');
       const analysis = {
         ...this.analyzeAppDescription(description),
         productRequirements: designCollaboration.productRequirements,
         designSystem: designSystem,
+        advancedStyling: advancedStyling,
         implementationGuide: implementationGuide
       };
       
-      console.log('🔍 Enhanced app analysis with design system:', {
+      console.log('🔍 Enhanced app analysis with design system and styling:', {
         type: analysis.type,
         features: analysis.features?.length || 0,
         designComponents: Object.keys(designSystem.components || {}).length,
-        hasDesignSystem: !!designSystem
+        stylingFeatures: Object.keys(advancedStyling || {}).length,
+        hasDesignSystem: !!designSystem,
+        hasAdvancedStyling: !!advancedStyling
       });
       
       const repoStructure = this.generateRepositoryStructure(analysis);
       
-      // Step 6: Create the repository and deploy
-      console.log('🚀 Step 6: Creating repository and deploying...');
+      // Step 7: Create the repository and deploy
+      console.log('🚀 Step 7: Creating repository and deploying...');
       const result = await this.deployNewApplication(analysis, repoStructure);
       
-      // Enhanced result with design information
+      // Enhanced result with design and styling information
       result.designSystem = {
         componentsCreated: Object.keys(designSystem.components || {}).length,
         colorPalette: designSystem.colorPalette ? 'Generated' : 'Basic',
         typography: designSystem.typography ? 'Custom' : 'Default',
-        designCollaboration: 'Product Owner + Designer + DevOps'
+        advancedStyling: advancedStyling ? 'CSS Agent Professional Styling' : 'Basic',
+        cssFiles: advancedStyling ? Object.keys(advancedStyling).length : 0,
+        responsiveDesign: advancedStyling?.responsive ? 'Mobile-First' : 'Basic',
+        designCollaboration: 'Product Owner + Designer + CSS Agent + DevOps'
       };
       
       // Log the creation in fix history
@@ -781,6 +796,34 @@ module.exports = app;`;
       structure['public/styles/design-system.css'] = this.generateDesignSystemCSS(analysis.designSystem);
       structure['public/styles/components.css'] = this.generateComponentCSS(analysis.designSystem);
       structure['public/styles/main.css'] = this.generateMainCSS(analysis);
+      
+      // Advanced CSS/SASS from CSS Agent
+      if (analysis.advancedStyling) {
+        console.log('🎨 Adding advanced CSS/SASS files from CSS Agent...');
+        structure['public/styles/variables.css'] = analysis.advancedStyling.variables?.colors || '';
+        structure['public/styles/typography.css'] = analysis.advancedStyling.typography || '';
+        structure['public/styles/layout.css'] = analysis.advancedStyling.layout || '';
+        structure['public/styles/utilities.css'] = analysis.advancedStyling.utilities || '';
+        structure['public/styles/animations.css'] = analysis.advancedStyling.animations || '';
+        structure['public/styles/responsive.css'] = analysis.advancedStyling.responsive || '';
+        
+        // App-specific styles
+        if (analysis.advancedStyling.appSpecific) {
+          structure[`public/styles/app-${analysis.type || 'general'}.css`] = analysis.advancedStyling.appSpecific;
+        }
+        
+        // SASS architecture files
+        if (analysis.advancedStyling.sassStructure) {
+          structure['src/styles/main.scss'] = analysis.advancedStyling.sassStructure.structure || '';
+          structure['src/styles/_variables.scss'] = analysis.advancedStyling.sassStructure.variables || '';
+          structure['src/styles/_functions.scss'] = analysis.advancedStyling.sassStructure.functions || '';
+        }
+        
+        // Advanced mixins
+        if (analysis.advancedStyling.mixins) {
+          structure['src/styles/_mixins.scss'] = analysis.advancedStyling.mixins;
+        }
+      }
       
       // Enhanced HTML with design system
       structure['views/index.html'] = this.generateEnhancedHTML(analysis);
@@ -1090,8 +1133,11 @@ a:hover {
   // Generate enhanced HTML with design system
   generateEnhancedHTML(analysis) {
     const { designSystem, productRequirements } = analysis;
-    const appType = analysis.type || 'general';
+    const appType = this.detectAppTypeFromAnalysis(analysis);
     const appName = productRequirements?.productVision?.valueProposition || 'Generated Application';
+    
+    // Generate specific interface based on app type
+    const specificContent = this.generateSpecificInterface(appType, designSystem);
     
     return `<!DOCTYPE html>
 <html lang="ro">
@@ -1102,27 +1148,52 @@ a:hover {
     <link rel="stylesheet" href="/styles/design-system.css">
     <link rel="stylesheet" href="/styles/components.css">
     <link rel="stylesheet" href="/styles/main.css">
+    <style>
+        :root {
+            --primary-color: ${designSystem?.colorPalette?.primary?.[0] || '#007bff'};
+            --secondary-color: ${designSystem?.colorPalette?.primary?.[1] || '#6c757d'};
+            --success-color: ${designSystem?.colorPalette?.semantic?.success || '#28a745'};
+            --font-family: ${designSystem?.typography?.primaryFont || 'Inter, system-ui'};
+        }
+        
+        body {
+            font-family: var(--font-family);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .app-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .app-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .app-content {
+            padding: 40px;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header class="text-center mt-8 mb-8">
+    <div class="app-container">
+        <header class="app-header">
             <h1>${appName}</h1>
-            <p>Aplicație generată cu design system professional</p>
+            <p>${productRequirements?.productVision?.mission || 'Aplicație generată cu design excepțional'}</p>
         </header>
         
-        <main>
-            <div class="card">
-                <div class="card-header">
-                    <h2>Bine ai venit!</h2>
-                </div>
-                <div class="card-body">
-                    <p>Această aplicație a fost generată cu colaborarea dintre Product Owner, Designer și DevOps AI Agent.</p>
-                    <div class="mt-4">
-                        <button class="btn btn-primary btn-md">Începe</button>
-                        <button class="btn btn-secondary btn-md">Află mai multe</button>
-                    </div>
-                </div>
-            </div>
+        <main class="app-content">
+            ${specificContent}
         </main>
     </div>
     
@@ -1130,6 +1201,429 @@ a:hover {
     <script src="/scripts/main.js"></script>
 </body>
 </html>`;
+  }
+
+  // Detect app type from analysis
+  detectAppTypeFromAnalysis(analysis) {
+    const description = analysis?.productRequirements?.productVision?.problemStatement || '';
+    
+    // Try to detect from product requirements first
+    if (description.toLowerCase().includes('calculator') || description.toLowerCase().includes('calcul')) {
+      return 'calculator';
+    }
+    if (description.toLowerCase().includes('todo') || description.toLowerCase().includes('task')) {
+      return 'todo';
+    }
+    if (description.toLowerCase().includes('weather') || description.toLowerCase().includes('vreme')) {
+      return 'weather';
+    }
+    
+    return analysis?.type || 'general';
+  }
+
+  // Generate specific interface based on app type
+  generateSpecificInterface(appType, designSystem) {
+    const interfaces = {
+      'calculator': `
+        <div class="calculator">
+            <div class="display">
+                <input type="text" id="display" value="0" readonly style="
+                    width: 100%;
+                    padding: 20px;
+                    font-size: 2rem;
+                    text-align: right;
+                    border: none;
+                    background: #f8f9fa;
+                    border-radius: 10px;
+                    margin-bottom: 20px;
+                    font-family: 'Courier New', monospace;
+                ">
+            </div>
+            
+            <div class="buttons" style="
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 15px;
+                margin-top: 20px;
+            ">
+                <button class="btn-calc clear" onclick="clearDisplay()" style="
+                    grid-column: span 2;
+                    padding: 20px;
+                    font-size: 1.2rem;
+                    border: none;
+                    border-radius: 10px;
+                    background: #ff6b6b;
+                    color: white;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                ">Șterge</button>
+                
+                <button class="btn-calc operator" onclick="deleteLast()" style="
+                    padding: 20px;
+                    font-size: 1.2rem;
+                    border: none;
+                    border-radius: 10px;
+                    background: #feca57;
+                    color: white;
+                    cursor: pointer;
+                ">⌫</button>
+                
+                <button class="btn-calc operator" onclick="appendToDisplay('/')" style="
+                    padding: 20px;
+                    font-size: 1.2rem;
+                    border: none;
+                    border-radius: 10px;
+                    background: var(--primary-color);
+                    color: white;
+                    cursor: pointer;
+                ">÷</button>
+                
+                <button class="btn-calc number" onclick="appendToDisplay('7')">7</button>
+                <button class="btn-calc number" onclick="appendToDisplay('8')">8</button>
+                <button class="btn-calc number" onclick="appendToDisplay('9')">9</button>
+                <button class="btn-calc operator" onclick="appendToDisplay('*')">×</button>
+                
+                <button class="btn-calc number" onclick="appendToDisplay('4')">4</button>
+                <button class="btn-calc number" onclick="appendToDisplay('5')">5</button>
+                <button class="btn-calc number" onclick="appendToDisplay('6')">6</button>
+                <button class="btn-calc operator" onclick="appendToDisplay('-')">-</button>
+                
+                <button class="btn-calc number" onclick="appendToDisplay('1')">1</button>
+                <button class="btn-calc number" onclick="appendToDisplay('2')">2</button>
+                <button class="btn-calc number" onclick="appendToDisplay('3')">3</button>
+                <button class="btn-calc operator" onclick="appendToDisplay('+')">+</button>
+                
+                <button class="btn-calc number zero" onclick="appendToDisplay('0')" style="grid-column: span 2;">0</button>
+                <button class="btn-calc number" onclick="appendToDisplay('.')">.</button>
+                <button class="btn-calc equals" onclick="calculate()" style="
+                    background: var(--success-color);
+                    color: white;
+                ">=</button>
+            </div>
+        </div>
+        
+        <style>
+            .btn-calc {
+                padding: 20px;
+                font-size: 1.2rem;
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+                transition: all 0.2s;
+                font-weight: 600;
+            }
+            
+            .btn-calc.number {
+                background: #f8f9fa;
+                color: #333;
+            }
+            
+            .btn-calc.number:hover {
+                background: #e9ecef;
+                transform: scale(0.95);
+            }
+            
+            .btn-calc.operator {
+                background: var(--primary-color);
+                color: white;
+            }
+            
+            .btn-calc.operator:hover {
+                opacity: 0.9;
+                transform: scale(0.95);
+            }
+        </style>
+        
+        <script>
+            let display = document.getElementById('display');
+            let currentInput = '0';
+            
+            function clearDisplay() {
+                currentInput = '0';
+                display.value = currentInput;
+            }
+            
+            function deleteLast() {
+                if (currentInput.length > 1) {
+                    currentInput = currentInput.slice(0, -1);
+                } else {
+                    currentInput = '0';
+                }
+                display.value = currentInput;
+            }
+            
+            function appendToDisplay(value) {
+                if (currentInput === '0' && value !== '.') {
+                    currentInput = value;
+                } else {
+                    currentInput += value;
+                }
+                display.value = currentInput;
+            }
+            
+            function calculate() {
+                try {
+                    // Replace display operators with JS operators
+                    let expression = currentInput.replace(/×/g, '*').replace(/÷/g, '/');
+                    let result = eval(expression);
+                    currentInput = result.toString();
+                    display.value = currentInput;
+                } catch (error) {
+                    display.value = 'Eroare';
+                    currentInput = '0';
+                }
+            }
+            
+            // Keyboard support
+            document.addEventListener('keydown', function(event) {
+                const key = event.key;
+                if ('0123456789'.includes(key)) {
+                    appendToDisplay(key);
+                } else if (['+', '-'].includes(key)) {
+                    appendToDisplay(key);
+                } else if (key === '*') {
+                    appendToDisplay('*');
+                } else if (key === '/') {
+                    event.preventDefault();
+                    appendToDisplay('/');
+                } else if (key === 'Enter' || key === '=') {
+                    event.preventDefault();
+                    calculate();
+                } else if (key === 'Escape') {
+                    clearDisplay();
+                } else if (key === 'Backspace') {
+                    event.preventDefault();
+                    deleteLast();
+                }
+            });
+        </script>
+      `,
+      
+      'todo': `
+        <div class="todo-app">
+            <div class="add-task" style="margin-bottom: 30px;">
+                <input type="text" id="taskInput" placeholder="Adaugă o sarcină nouă..." style="
+                    width: 70%;
+                    padding: 15px;
+                    border: 2px solid #e9ecef;
+                    border-radius: 10px;
+                    font-size: 1rem;
+                    margin-right: 10px;
+                ">
+                <button onclick="addTask()" style="
+                    padding: 15px 25px;
+                    background: var(--primary-color);
+                    color: white;
+                    border: none;
+                    border-radius: 10px;
+                    cursor: pointer;
+                    font-size: 1rem;
+                ">Adaugă</button>
+            </div>
+            
+            <div id="todoList" style="
+                background: #f8f9fa;
+                border-radius: 15px;
+                padding: 20px;
+                min-height: 200px;
+            ">
+                <p style="text-align: center; color: #6c757d;">Nu ai încă sarcini. Adaugă prima!</p>
+            </div>
+        </div>
+        
+        <script>
+            let tasks = [];
+            
+            function addTask() {
+                const input = document.getElementById('taskInput');
+                const task = input.value.trim();
+                
+                if (task) {
+                    tasks.push({
+                        id: Date.now(),
+                        text: task,
+                        completed: false
+                    });
+                    input.value = '';
+                    renderTasks();
+                }
+            }
+            
+            function toggleTask(id) {
+                tasks = tasks.map(task => 
+                    task.id === id ? {...task, completed: !task.completed} : task
+                );
+                renderTasks();
+            }
+            
+            function deleteTask(id) {
+                tasks = tasks.filter(task => task.id !== id);
+                renderTasks();
+            }
+            
+            function renderTasks() {
+                const todoList = document.getElementById('todoList');
+                
+                if (tasks.length === 0) {
+                    todoList.innerHTML = '<p style="text-align: center; color: #6c757d;">Nu ai încă sarcini. Adaugă prima!</p>';
+                    return;
+                }
+                
+                todoList.innerHTML = tasks.map(task => \`
+                    <div style="
+                        display: flex;
+                        align-items: center;
+                        padding: 15px;
+                        margin-bottom: 10px;
+                        background: white;
+                        border-radius: 10px;
+                        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+                        \${task.completed ? 'opacity: 0.6;' : ''}
+                    ">
+                        <input type="checkbox" \${task.completed ? 'checked' : ''} 
+                               onchange="toggleTask(\${task.id})" style="margin-right: 15px;">
+                        <span style="
+                            flex: 1;
+                            \${task.completed ? 'text-decoration: line-through;' : ''}
+                        ">\${task.text}</span>
+                        <button onclick="deleteTask(\${task.id})" style="
+                            background: #ff6b6b;
+                            color: white;
+                            border: none;
+                            padding: 5px 10px;
+                            border-radius: 5px;
+                            cursor: pointer;
+                        ">🗑️</button>
+                    </div>
+                \`).join('');
+            }
+            
+            // Add task on Enter key
+            document.getElementById('taskInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addTask();
+                }
+            });
+        </script>
+      `,
+      
+      'weather': `
+        <div class="weather-app">
+            <div class="location-input" style="margin-bottom: 30px;">
+                <input type="text" id="cityInput" placeholder="Introdu orașul..." value="București" style="
+                    width: 70%;
+                    padding: 15px;
+                    border: 2px solid #e9ecef;
+                    border-radius: 10px;
+                    font-size: 1rem;
+                    margin-right: 10px;
+                ">
+                <button onclick="getWeather()" style="
+                    padding: 15px 25px;
+                    background: var(--primary-color);
+                    color: white;
+                    border: none;
+                    border-radius: 10px;
+                    cursor: pointer;
+                ">Caută</button>
+            </div>
+            
+            <div id="weatherInfo" style="
+                background: linear-gradient(135deg, #74b9ff, #0984e3);
+                color: white;
+                padding: 30px;
+                border-radius: 20px;
+                text-align: center;
+            ">
+                <h2>☀️ București</h2>
+                <div style="font-size: 3rem; margin: 20px 0;">22°C</div>
+                <p style="font-size: 1.2rem;">Însorit</p>
+                <div style="display: flex; justify-content: space-around; margin-top: 20px;">
+                    <div>
+                        <div>Umiditate</div>
+                        <div style="font-weight: bold;">65%</div>
+                    </div>
+                    <div>
+                        <div>Vânt</div>
+                        <div style="font-weight: bold;">12 km/h</div>
+                    </div>
+                    <div>
+                        <div>Vizibilitate</div>
+                        <div style="font-weight: bold;">10 km</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            function getWeather() {
+                const city = document.getElementById('cityInput').value || 'București';
+                // Simulate weather data - in real app would call weather API
+                const weatherData = {
+                    'București': {icon: '☀️', temp: '22°C', desc: 'Însorit', humidity: '65%', wind: '12 km/h'},
+                    'Cluj-Napoca': {icon: '⛅', temp: '18°C', desc: 'Parțial noros', humidity: '72%', wind: '8 km/h'},
+                    'Timișoara': {icon: '🌧️', temp: '15°C', desc: 'Ploios', humidity: '85%', wind: '15 km/h'}
+                };
+                
+                const data = weatherData[city] || weatherData['București'];
+                
+                document.getElementById('weatherInfo').innerHTML = \`
+                    <h2>\${data.icon} \${city}</h2>
+                    <div style="font-size: 3rem; margin: 20px 0;">\${data.temp}</div>
+                    <p style="font-size: 1.2rem;">\${data.desc}</p>
+                    <div style="display: flex; justify-content: space-around; margin-top: 20px;">
+                        <div>
+                            <div>Umiditate</div>
+                            <div style="font-weight: bold;">\${data.humidity}</div>
+                        </div>
+                        <div>
+                            <div>Vânt</div>
+                            <div style="font-weight: bold;">\${data.wind}</div>
+                        </div>
+                        <div>
+                            <div>Vizibilitate</div>
+                            <div style="font-weight: bold;">10 km</div>
+                        </div>
+                    </div>
+                \`;
+            }
+        </script>
+      `
+    };
+    
+    return interfaces[appType] || `
+      <div class="welcome-message">
+          <h2>🎉 Aplicația ta a fost generată cu succes!</h2>
+          <p>Această aplicație a fost creată prin colaborarea profesionistă a echipei AI:</p>
+          <ul style="text-align: left; max-width: 400px; margin: 20px auto;">
+              <li><strong>Product Owner</strong> - Analiză cerințe</li>
+              <li><strong>Senior Designer</strong> - Design system</li>
+              <li><strong>DevOps Agent</strong> - Implementare</li>
+          </ul>
+          <div style="margin-top: 30px;">
+              <button style="
+                  padding: 15px 30px;
+                  background: var(--primary-color);
+                  color: white;
+                  border: none;
+                  border-radius: 10px;
+                  font-size: 1.1rem;
+                  cursor: pointer;
+                  margin: 0 10px;
+              " onclick="alert('Funcționalitate în dezvoltare!')">Începe</button>
+              <button style="
+                  padding: 15px 30px;
+                  background: transparent;
+                  color: var(--primary-color);
+                  border: 2px solid var(--primary-color);
+                  border-radius: 10px;
+                  font-size: 1.1rem;
+                  cursor: pointer;
+                  margin: 0 10px;
+              " onclick="alert('Documentație în curând!')">Documentație</button>
+          </div>
+      </div>
+    `;
   }
 
   async deployNewApplication(analysis, repoStructure) {
