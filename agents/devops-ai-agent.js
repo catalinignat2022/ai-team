@@ -34,7 +34,7 @@ class DevOpsAIAgent {
     ];
     
     this.github = new Octokit({ auth: process.env.GITHUB_TOKEN });
-    this.monitoredRepos = ['catalinignat2022/romanian-dating-final-app'];
+    this.monitoredRepos = [process.env.TARGET_REPO || 'catalinignat2022/ai-team'];
     this.railwayProjects = [process.env.RAILWAY_PROJECT_ID];
     this.fixHistory = [];
     this.errorPatterns = this.loadErrorPatterns();

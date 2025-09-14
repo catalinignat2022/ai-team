@@ -11,7 +11,7 @@ class GitHubAutoFixEngine {
   constructor(devopsAgent) {
     this.devopsAgent = devopsAgent;
     this.github = new Octokit({ auth: process.env.GITHUB_TOKEN });
-    this.monitoredRepos = ['catalinignat2022/romanian-dating-final-app'];
+    this.monitoredRepos = [process.env.TARGET_REPO || 'catalinignat2022/ai-team'];
     this.fixTemplates = this.loadFixTemplates();
     this.prHistory = [];
     
