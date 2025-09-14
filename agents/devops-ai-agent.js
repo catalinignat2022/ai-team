@@ -680,11 +680,37 @@ module.exports = app;`;
       
       const repoStructure = this.generateRepositoryStructure(finalAnalysis);
       
-      // Step 7: Create the repository and deploy
-      console.log('🚀 Step 7: Creating repository and deploying...');
+      // Step 7: CSP Validation before deployment
+      console.log('🔒 Step 7: Validating CSP compliance before deployment...');
+      const cspValidation = await cssAgent.validateCSSProduction(repoStructure.files?.['index.html'] || '');
+      
+      if (!cspValidation.cspCompliant) {
+        console.error('❌ CSP Validation failed - cannot deploy');
+        cspValidation.cspIssues.forEach(issue => {
+          console.error(`  🚨 ${issue}`);
+        });
+        
+        return {
+          success: false,
+          message: 'Deployment blocked: CSP violations found',
+          error_type: 'csp_validation_error',
+          cspIssues: cspValidation.cspIssues,
+          suggestions: [
+            'Remove all inline event handlers (onclick, onsubmit, etc.)',
+            'Use addEventListener instead of inline handlers',
+            'Avoid javascript: URLs',
+            'Remove eval() usage'
+          ]
+        };
+      }
+      
+      console.log('✅ CSP validation passed - proceeding with deployment');
+      
+      // Step 8: Create the repository and deploy
+      console.log('🚀 Step 8: Creating repository and deploying...');
       const result = await this.deployNewApplication(finalAnalysis, repoStructure);
       
-      // Enhanced result with design and styling information
+      // Enhanced result with design, styling and security information
       result.designSystem = {
         componentsCreated: Object.keys(designSystem.components || {}).length,
         colorPalette: designSystem.colorPalette ? 'Generated' : 'Basic',
@@ -693,6 +719,19 @@ module.exports = app;`;
         cssFiles: advancedStyling ? Object.keys(advancedStyling).length : 0,
         responsiveDesign: advancedStyling?.responsive ? 'Mobile-First' : 'Basic',
         designCollaboration: 'Product Owner + Designer + CSS Agent + DevOps'
+      };
+      
+      // Add security compliance information
+      result.security = {
+        cspCompliant: cspValidation.cspCompliant,
+        cspValidation: cspValidation.cspCompliant ? 'PASSED' : 'FAILED',
+        productionReady: cspValidation.productionReady,
+        securityScore: cspValidation.cspCompliant ? 'A+' : 'F',
+        validationDetails: {
+          inlineHandlers: cspValidation.cspIssues.length,
+          externalDependencies: cspValidation.hasExternalDependencies,
+          cssModules: cspValidation.cssModules.length
+        }
       };
       
       // Log the creation in fix history

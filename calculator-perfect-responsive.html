@@ -982,28 +982,28 @@ p {
             <div id="calculatorDisplay">0</div>
           </div>
           <div class="calculator-grid">
-            <button class="calc-btn calc-btn-clear" onclick="clearCalculator()">C</button>
-            <button class="calc-btn calc-btn-operator" onclick="appendToDisplay('/')">/</button>
-            <button class="calc-btn calc-btn-operator" onclick="appendToDisplay('*')">×</button>
-            <button class="calc-btn calc-btn-operator" onclick="deleteLast()">⌫</button>
+            <button class="calc-btn calc-btn-clear" data-action="clear">C</button>
+            <button class="calc-btn calc-btn-operator" data-action="append" data-value="/">/</button>
+            <button class="calc-btn calc-btn-operator" data-action="append" data-value="*">×</button>
+            <button class="calc-btn calc-btn-operator" data-action="delete">⌫</button>
             
-            <button class="calc-btn calc-btn-number" onclick="appendToDisplay('7')">7</button>
-            <button class="calc-btn calc-btn-number" onclick="appendToDisplay('8')">8</button>
-            <button class="calc-btn calc-btn-number" onclick="appendToDisplay('9')">9</button>
-            <button class="calc-btn calc-btn-operator" onclick="appendToDisplay('-')">-</button>
+            <button class="calc-btn calc-btn-number" data-action="append" data-value="7">7</button>
+            <button class="calc-btn calc-btn-number" data-action="append" data-value="8">8</button>
+            <button class="calc-btn calc-btn-number" data-action="append" data-value="9">9</button>
+            <button class="calc-btn calc-btn-operator" data-action="append" data-value="-">-</button>
             
-            <button class="calc-btn calc-btn-number" onclick="appendToDisplay('4')">4</button>
-            <button class="calc-btn calc-btn-number" onclick="appendToDisplay('5')">5</button>
-            <button class="calc-btn calc-btn-number" onclick="appendToDisplay('6')">6</button>
-            <button class="calc-btn calc-btn-operator" onclick="appendToDisplay('+')">+</button>
+            <button class="calc-btn calc-btn-number" data-action="append" data-value="4">4</button>
+            <button class="calc-btn calc-btn-number" data-action="append" data-value="5">5</button>
+            <button class="calc-btn calc-btn-number" data-action="append" data-value="6">6</button>
+            <button class="calc-btn calc-btn-operator" data-action="append" data-value="+">+</button>
             
-            <button class="calc-btn calc-btn-number" onclick="appendToDisplay('1')">1</button>
-            <button class="calc-btn calc-btn-number" onclick="appendToDisplay('2')">2</button>
-            <button class="calc-btn calc-btn-number" onclick="appendToDisplay('3')">3</button>
-            <button class="calc-btn calc-btn-equals" onclick="calculateResult()">=</button>
+            <button class="calc-btn calc-btn-number" data-action="append" data-value="1">1</button>
+            <button class="calc-btn calc-btn-number" data-action="append" data-value="2">2</button>
+            <button class="calc-btn calc-btn-number" data-action="append" data-value="3">3</button>
+            <button class="calc-btn calc-btn-equals" data-action="calculate">=</button>
             
-            <button class="calc-btn calc-btn-zero calc-btn-number" onclick="appendToDisplay('0')">0</button>
-            <button class="calc-btn calc-btn-number" onclick="appendToDisplay('.')">.</button>
+            <button class="calc-btn calc-btn-zero calc-btn-number" data-action="append" data-value="0">0</button>
+            <button class="calc-btn calc-btn-number" data-action="append" data-value=".">.</button>
           </div>
         </div>
       
@@ -1012,9 +1012,43 @@ p {
     
     <script>
       
-        // Perfect Calculator JavaScript - No duplications, no errors
+        // Perfect Calculator JavaScript - CSP Compliant, No inline handlers
         let currentInput = '0';
         let shouldResetDisplay = false;
+        
+        // Initialize calculator when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+          initializeCalculator();
+        });
+        
+        function initializeCalculator() {
+          // Add event listeners to all calculator buttons
+          const buttons = document.querySelectorAll('.calc-btn');
+          buttons.forEach(button => {
+            button.addEventListener('click', handleButtonClick);
+          });
+        }
+        
+        function handleButtonClick(event) {
+          const button = event.target;
+          const action = button.dataset.action;
+          const value = button.dataset.value;
+          
+          switch(action) {
+            case 'append':
+              appendToDisplay(value);
+              break;
+            case 'clear':
+              clearCalculator();
+              break;
+            case 'delete':
+              deleteLast();
+              break;
+            case 'calculate':
+              calculateResult();
+              break;
+          }
+        }
         
         function appendToDisplay(value) {
           const display = document.getElementById('calculatorDisplay');

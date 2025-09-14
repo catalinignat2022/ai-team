@@ -64,10 +64,19 @@ async function testPerfectResponsiveCalculator() {
     const perfectHTML = await cssAgent.generateCompleteHTML(calculatorApp, designSystem, frontendCollaboration);
     console.log('✅ Perfect responsive HTML with team collaboration generated');
     
-    console.log('\n8. Validating generated code...');
-    const validation = await cssAgent.validateGeneratedCode(perfectHTML);
+    console.log('\n8. Validating generated code and CSP compliance...');
+    const validation = await cssAgent.validateCSSProduction(perfectHTML);
     
-    if (!validation.isValid) {
+    if (!validation.cspCompliant) {
+      console.log('❌ CSP Compliance failed:');
+      validation.cspIssues.forEach(issue => console.log('  - ' + issue));
+      console.log('🔧 CSP violations must be fixed before deployment!');
+      return;
+    } else {
+      console.log('✅ CSP Compliance passed - No inline event handlers');
+    }
+    
+    if (validation.errors.length > 0) {
       console.log('❌ Validation errors found:');
       validation.errors.forEach(error => console.log('  - ' + error));
     } else {

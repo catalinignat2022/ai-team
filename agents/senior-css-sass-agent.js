@@ -417,9 +417,9 @@ class SeniorCSSsassAgent {
 </html>`;
   }
 
-  // Validate CSS and test for production readiness
+  // Validate CSS and test for production readiness and CSP compliance
   async validateCSSProduction(htmlContent) {
-    console.log('🔍 Validating CSS for production readiness...');
+    console.log('🔍 Validating CSS for production readiness and CSP compliance...');
     
     const validation = {
       hasExternalDependencies: false,
@@ -427,7 +427,9 @@ class SeniorCSSsassAgent {
       hasJavaScript: false,
       cssModules: [],
       errors: [],
-      warnings: []
+      warnings: [],
+      cspCompliant: true,
+      cspIssues: []
     };
     
     // Check for external CSS files
@@ -440,6 +442,35 @@ class SeniorCSSsassAgent {
     if (htmlContent.includes('src=') && htmlContent.includes('.js')) {
       validation.hasExternalDependencies = true;
       validation.errors.push('HTML contains external JavaScript file references');
+    }
+    
+    // CSP Compliance Check - Critical for production
+    const inlineHandlers = [
+      'onclick=', 'onsubmit=', 'onload=', 'onerror=', 'onchange=', 
+      'onkeyup=', 'onkeydown=', 'onmouseover=', 'onmouseout=',
+      'onfocus=', 'onblur=', 'ondblclick=', 'onmousedown=', 'onmouseup='
+    ];
+    
+    for (const handler of inlineHandlers) {
+      if (htmlContent.includes(handler)) {
+        validation.cspCompliant = false;
+        validation.cspIssues.push(`CSP Violation: Inline event handler ${handler}`);
+        validation.errors.push(`CRITICAL: CSP violation - ${handler} found. Use addEventListener instead.`);
+      }
+    }
+    
+    // Check for javascript: URLs
+    if (htmlContent.includes('javascript:')) {
+      validation.cspCompliant = false;
+      validation.cspIssues.push('CSP Violation: javascript: URL found');
+      validation.errors.push('CRITICAL: CSP violation - javascript: URLs not allowed');
+    }
+    
+    // Check for eval() usage
+    if (htmlContent.includes('eval(')) {
+      validation.cspCompliant = false;
+      validation.cspIssues.push('CSP Violation: eval() usage found');
+      validation.errors.push('CRITICAL: CSP violation - eval() not allowed');
     }
     
     // Check for inline styles
@@ -469,10 +500,21 @@ class SeniorCSSsassAgent {
       }
     });
     
-    // Production readiness score
+    // Production readiness score - now includes CSP compliance
     validation.productionReady = !validation.hasExternalDependencies && 
                                 validation.hasInlineCSS && 
-                                validation.cssModules.length >= 5;
+                                validation.cssModules.length >= 5 &&
+                                validation.cspCompliant;
+    
+    // Log CSP validation results
+    if (validation.cspCompliant) {
+      console.log('✅ CSP Compliance: PASSED - No inline event handlers found');
+    } else {
+      console.log('❌ CSP Compliance: FAILED');
+      validation.cspIssues.forEach(issue => {
+        console.log(`  🚨 ${issue}`);
+      });
+    }
     
     console.log('✅ CSS validation complete');
     return validation;
@@ -1337,7 +1379,7 @@ p {
 }`;
   }
 
-  // Generate app-specific content with perfect responsive design
+  // Generate app-specific content with perfect responsive design (CSP compliant)
   async generateAppSpecificContent(appStructure) {
     if (appStructure.type === 'calculator') {
       return `
@@ -1346,28 +1388,28 @@ p {
             <div id="calculatorDisplay">0</div>
           </div>
           <div class="calculator-grid">
-            <button class="calc-btn calc-btn-clear" onclick="clearCalculator()">C</button>
-            <button class="calc-btn calc-btn-operator" onclick="appendToDisplay('/')">/</button>
-            <button class="calc-btn calc-btn-operator" onclick="appendToDisplay('*')">×</button>
-            <button class="calc-btn calc-btn-operator" onclick="deleteLast()">⌫</button>
+            <button class="calc-btn calc-btn-clear" data-action="clear">C</button>
+            <button class="calc-btn calc-btn-operator" data-action="append" data-value="/">/</button>
+            <button class="calc-btn calc-btn-operator" data-action="append" data-value="*">×</button>
+            <button class="calc-btn calc-btn-operator" data-action="delete">⌫</button>
             
-            <button class="calc-btn calc-btn-number" onclick="appendToDisplay('7')">7</button>
-            <button class="calc-btn calc-btn-number" onclick="appendToDisplay('8')">8</button>
-            <button class="calc-btn calc-btn-number" onclick="appendToDisplay('9')">9</button>
-            <button class="calc-btn calc-btn-operator" onclick="appendToDisplay('-')">-</button>
+            <button class="calc-btn calc-btn-number" data-action="append" data-value="7">7</button>
+            <button class="calc-btn calc-btn-number" data-action="append" data-value="8">8</button>
+            <button class="calc-btn calc-btn-number" data-action="append" data-value="9">9</button>
+            <button class="calc-btn calc-btn-operator" data-action="append" data-value="-">-</button>
             
-            <button class="calc-btn calc-btn-number" onclick="appendToDisplay('4')">4</button>
-            <button class="calc-btn calc-btn-number" onclick="appendToDisplay('5')">5</button>
-            <button class="calc-btn calc-btn-number" onclick="appendToDisplay('6')">6</button>
-            <button class="calc-btn calc-btn-operator" onclick="appendToDisplay('+')">+</button>
+            <button class="calc-btn calc-btn-number" data-action="append" data-value="4">4</button>
+            <button class="calc-btn calc-btn-number" data-action="append" data-value="5">5</button>
+            <button class="calc-btn calc-btn-number" data-action="append" data-value="6">6</button>
+            <button class="calc-btn calc-btn-operator" data-action="append" data-value="+">+</button>
             
-            <button class="calc-btn calc-btn-number" onclick="appendToDisplay('1')">1</button>
-            <button class="calc-btn calc-btn-number" onclick="appendToDisplay('2')">2</button>
-            <button class="calc-btn calc-btn-number" onclick="appendToDisplay('3')">3</button>
-            <button class="calc-btn calc-btn-equals" onclick="calculateResult()">=</button>
+            <button class="calc-btn calc-btn-number" data-action="append" data-value="1">1</button>
+            <button class="calc-btn calc-btn-number" data-action="append" data-value="2">2</button>
+            <button class="calc-btn calc-btn-number" data-action="append" data-value="3">3</button>
+            <button class="calc-btn calc-btn-equals" data-action="calculate">=</button>
             
-            <button class="calc-btn calc-btn-zero calc-btn-number" onclick="appendToDisplay('0')">0</button>
-            <button class="calc-btn calc-btn-number" onclick="appendToDisplay('.')">.</button>
+            <button class="calc-btn calc-btn-zero calc-btn-number" data-action="append" data-value="0">0</button>
+            <button class="calc-btn calc-btn-number" data-action="append" data-value=".">.</button>
           </div>
         </div>
       `;
@@ -1385,9 +1427,43 @@ p {
   async generatePerfectJavaScript(appStructure) {
     if (appStructure.type === 'calculator') {
       return `
-        // Perfect Calculator JavaScript - No duplications, no errors
+        // Perfect Calculator JavaScript - CSP Compliant, No inline handlers
         let currentInput = '0';
         let shouldResetDisplay = false;
+        
+        // Initialize calculator when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+          initializeCalculator();
+        });
+        
+        function initializeCalculator() {
+          // Add event listeners to all calculator buttons
+          const buttons = document.querySelectorAll('.calc-btn');
+          buttons.forEach(button => {
+            button.addEventListener('click', handleButtonClick);
+          });
+        }
+        
+        function handleButtonClick(event) {
+          const button = event.target;
+          const action = button.dataset.action;
+          const value = button.dataset.value;
+          
+          switch(action) {
+            case 'append':
+              appendToDisplay(value);
+              break;
+            case 'clear':
+              clearCalculator();
+              break;
+            case 'delete':
+              deleteLast();
+              break;
+            case 'calculate':
+              calculateResult();
+              break;
+          }
+        }
         
         function appendToDisplay(value) {
           const display = document.getElementById('calculatorDisplay');
