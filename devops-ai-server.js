@@ -214,7 +214,7 @@ class DevOpsAIServer {
     // Health check endpoint
     this.app.get('/health', (req, res) => {
       res.json({
-        status: 'healthy',
+        status: 'OK',
         timestamp: new Date().toISOString(),
         service: 'DevOps AI Agent - App Creator',
         version: '2.0.0',
