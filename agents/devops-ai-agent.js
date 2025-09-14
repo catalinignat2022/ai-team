@@ -621,16 +621,60 @@ module.exports = app;`;
     console.log('📝 Description:', description);
     
     try {
-      // Analyze the description to determine technology stack and features
-      const analysis = this.analyzeAppDescription(description);
+      // Step 1: Product Owner analyzes requirements
+      console.log('📋 Step 1: Product Owner analyzing requirements...');
+      const SeniorProductOwnerAgent = require('./senior-product-owner-agent');
+      const productOwner = new SeniorProductOwnerAgent();
+      const productRequirements = await productOwner.analyzeProductRequirements(description);
       
-      console.log('🔍 App analysis:', analysis);
+      // Step 2: Designer collaborates with Product Owner
+      console.log('🎨 Step 2: Designer collaborating on design requirements...');
+      const SeniorDesignerAgent = require('./senior-designer-agent');
+      const designer = new SeniorDesignerAgent();
+      productOwner.setDesignerCollaborator(designer);
       
-      // Generate repository structure
+      const designCollaboration = await productOwner.collaborateWithDesigner(productRequirements);
+      
+      // Step 3: Create design system
+      console.log('🧩 Step 3: Creating comprehensive design system...');
+      const designSystem = await designer.createDesignSystem(designCollaboration.designCollaboration.designBrief);
+      
+      // Step 4: Generate implementation guide for frontend
+      console.log('⚙️ Step 4: Creating implementation guide...');
+      const implementationGuide = await designer.collaborateWithFrontendDeveloper(
+        designSystem, 
+        productRequirements.technicalRequirements
+      );
+      
+      // Step 5: Generate repository structure with design system
+      console.log('🏗️ Step 5: Generating repository structure...');
+      const analysis = {
+        ...this.analyzeAppDescription(description),
+        productRequirements: designCollaboration.productRequirements,
+        designSystem: designSystem,
+        implementationGuide: implementationGuide
+      };
+      
+      console.log('🔍 Enhanced app analysis with design system:', {
+        type: analysis.type,
+        features: analysis.features?.length || 0,
+        designComponents: Object.keys(designSystem.components || {}).length,
+        hasDesignSystem: !!designSystem
+      });
+      
       const repoStructure = this.generateRepositoryStructure(analysis);
       
-      // Create the repository and deploy
+      // Step 6: Create the repository and deploy
+      console.log('🚀 Step 6: Creating repository and deploying...');
       const result = await this.deployNewApplication(analysis, repoStructure);
+      
+      // Enhanced result with design information
+      result.designSystem = {
+        componentsCreated: Object.keys(designSystem.components || {}).length,
+        colorPalette: designSystem.colorPalette ? 'Generated' : 'Basic',
+        typography: designSystem.typography ? 'Custom' : 'Default',
+        designCollaboration: 'Product Owner + Designer + DevOps'
+      };
       
       // Log the creation in fix history
       this.fixHistory.push({
@@ -724,13 +768,40 @@ module.exports = app;`;
       'server.js': this.generateServerJs(analysis),
       'README.md': this.generateReadme(analysis),
       '.env.example': this.generateEnvExample(analysis),
-      'public/style.css': this.generateCSS(analysis),
-      'public/script.js': this.generateFrontendJS(analysis),
-      'views/index.html': this.generateIndexHTML(analysis),
       'routes/api.js': this.generateAPIRoutes(analysis),
       'models/User.js': this.generateUserModel(analysis),
       'middleware/auth.js': this.generateAuthMiddleware(analysis)
     };
+    
+    // Add design system files if available
+    if (analysis.designSystem) {
+      console.log('📦 Adding design system files...');
+      
+      // CSS with design system variables
+      structure['public/styles/design-system.css'] = this.generateDesignSystemCSS(analysis.designSystem);
+      structure['public/styles/components.css'] = this.generateComponentCSS(analysis.designSystem);
+      structure['public/styles/main.css'] = this.generateMainCSS(analysis);
+      
+      // Enhanced HTML with design system
+      structure['views/index.html'] = this.generateEnhancedHTML(analysis);
+      
+      // Enhanced JavaScript with component interactions
+      structure['public/scripts/components.js'] = this.generateComponentJS(analysis.designSystem);
+      structure['public/scripts/main.js'] = this.generateEnhancedFrontendJS(analysis);
+      
+      // Design system documentation
+      structure['docs/design-system.md'] = this.generateDesignSystemDocs(analysis.designSystem);
+      
+      // Tailwind configuration if implementation guide exists
+      if (analysis.implementationGuide?.tailwindConfig) {
+        structure['tailwind.config.js'] = JSON.stringify(analysis.implementationGuide.tailwindConfig, null, 2);
+      }
+    } else {
+      // Fallback to basic styling
+      structure['public/style.css'] = this.generateCSS(analysis);
+      structure['public/script.js'] = this.generateFrontendJS(analysis);
+      structure['views/index.html'] = this.generateIndexHTML(analysis);
+    }
     
     // Add specific files based on app type
     if (analysis.type === 'ecommerce') {
@@ -752,6 +823,314 @@ module.exports = app;`;
     }
     
     return structure;
+  }
+
+  // Generate design system CSS with variables and utilities
+  generateDesignSystemCSS(designSystem) {
+    let css = '/* Design System CSS Variables and Base Styles */\n\n';
+    
+    if (designSystem.colorPalette) {
+      css += ':root {\n';
+      css += '  /* Brand Colors */\n';
+      
+      // Add color variables
+      if (designSystem.colorPalette.brand?.primary) {
+        Object.entries(designSystem.colorPalette.brand.primary).forEach(([shade, color]) => {
+          css += `  --color-primary-${shade}: ${color};\n`;
+        });
+      }
+      
+      if (designSystem.colorPalette.semantic) {
+        Object.entries(designSystem.colorPalette.semantic).forEach(([name, color]) => {
+          css += `  --color-${name}: ${color};\n`;
+        });
+      }
+      
+      css += '\n  /* Typography */\n';
+      if (designSystem.typography?.fontFamilies) {
+        Object.entries(designSystem.typography.fontFamilies).forEach(([type, family]) => {
+          css += `  --font-${type}: ${family};\n`;
+        });
+      }
+      
+      css += '\n  /* Spacing System */\n';
+      css += '  --space-xs: 0.25rem;\n';
+      css += '  --space-sm: 0.5rem;\n';
+      css += '  --space-md: 1rem;\n';
+      css += '  --space-lg: 1.5rem;\n';
+      css += '  --space-xl: 2rem;\n';
+      css += '  --space-2xl: 3rem;\n';
+      
+      css += '\n  /* Border Radius */\n';
+      css += '  --radius-sm: 0.125rem;\n';
+      css += '  --radius-md: 0.375rem;\n';
+      css += '  --radius-lg: 0.5rem;\n';
+      css += '  --radius-xl: 0.75rem;\n';
+      
+      css += '\n  /* Shadows */\n';
+      css += '  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);\n';
+      css += '  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);\n';
+      css += '  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);\n';
+      
+      css += '}\n\n';
+    }
+    
+    css += `/* Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-body, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--color-neutral-800, #1f2937);
+  background-color: var(--color-neutral-50, #f9fafb);
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 0 0 var(--space-md, 1rem) 0;
+  color: var(--color-neutral-900, #111827);
+}
+
+h1 { font-size: 2.25rem; }
+h2 { font-size: 1.875rem; }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.125rem; }
+h6 { font-size: 1rem; }
+
+p {
+  margin: 0 0 var(--space-md, 1rem) 0;
+}
+
+a {
+  color: var(--color-primary-600, #3b82f6);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-primary-700, #1d4ed8);
+  text-decoration: underline;
+}`;
+    
+    return css;
+  }
+
+  // Generate component-specific CSS
+  generateComponentCSS(designSystem) {
+    let css = '/* Component Styles */\n\n';
+    
+    if (designSystem.components?.buttons) {
+      css += `/* Button Components */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md, 0.375rem);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  text-decoration: none;
+}
+
+.btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-primary-500, #3b82f6);
+}
+
+.btn-primary {
+  background-color: var(--color-primary-600, #3b82f6);
+  color: white;
+  border-color: var(--color-primary-600, #3b82f6);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-700, #1d4ed8);
+  border-color: var(--color-primary-700, #1d4ed8);
+}
+
+.btn-secondary {
+  background-color: white;
+  color: var(--color-neutral-700, #374151);
+  border-color: var(--color-neutral-300, #d1d5db);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-neutral-50, #f9fafb);
+  border-color: var(--color-neutral-400, #9ca3af);
+}
+
+.btn-sm {
+  padding: var(--space-xs, 0.25rem) var(--space-sm, 0.5rem);
+  font-size: 0.875rem;
+}
+
+.btn-md {
+  padding: var(--space-sm, 0.5rem) var(--space-md, 1rem);
+  font-size: 0.875rem;
+}
+
+.btn-lg {
+  padding: var(--space-md, 1rem) var(--space-lg, 1.5rem);
+  font-size: 1rem;
+}
+
+`;
+    }
+    
+    if (designSystem.components?.cards) {
+      css += `/* Card Components */
+.card {
+  background-color: white;
+  border-radius: var(--radius-lg, 0.5rem);
+  box-shadow: var(--shadow-sm, 0 1px 2px 0 rgb(0 0 0 / 0.05));
+  border: 1px solid var(--color-neutral-200, #e5e7eb);
+  overflow: hidden;
+}
+
+.card-header {
+  padding: var(--space-lg, 1.5rem);
+  border-bottom: 1px solid var(--color-neutral-200, #e5e7eb);
+}
+
+.card-body {
+  padding: var(--space-lg, 1.5rem);
+}
+
+.card-footer {
+  padding: var(--space-lg, 1.5rem);
+  border-top: 1px solid var(--color-neutral-200, #e5e7eb);
+  background-color: var(--color-neutral-50, #f9fafb);
+}
+
+`;
+    }
+    
+    css += `/* Form Components */
+.form-group {
+  margin-bottom: var(--space-md, 1rem);
+}
+
+.form-label {
+  display: block;
+  font-weight: 500;
+  color: var(--color-neutral-700, #374151);
+  margin-bottom: var(--space-xs, 0.25rem);
+}
+
+.form-input {
+  width: 100%;
+  padding: var(--space-sm, 0.5rem) var(--space-sm, 0.5rem);
+  border: 1px solid var(--color-neutral-300, #d1d5db);
+  border-radius: var(--radius-md, 0.375rem);
+  font-size: 0.875rem;
+  transition: border-color 0.2s ease-in-out;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--color-primary-500, #3b82f6);
+  box-shadow: 0 0 0 2px var(--color-primary-100, #dbeafe);
+}
+
+/* Utility Classes */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-md, 1rem);
+}
+
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.mt-1 { margin-top: var(--space-xs, 0.25rem); }
+.mt-2 { margin-top: var(--space-sm, 0.5rem); }
+.mt-4 { margin-top: var(--space-md, 1rem); }
+.mt-6 { margin-top: var(--space-lg, 1.5rem); }
+.mt-8 { margin-top: var(--space-xl, 2rem); }
+
+.mb-1 { margin-bottom: var(--space-xs, 0.25rem); }
+.mb-2 { margin-bottom: var(--space-sm, 0.5rem); }
+.mb-4 { margin-bottom: var(--space-md, 1rem); }
+.mb-6 { margin-bottom: var(--space-lg, 1.5rem); }
+.mb-8 { margin-bottom: var(--space-xl, 2rem); }
+
+.p-2 { padding: var(--space-sm, 0.5rem); }
+.p-4 { padding: var(--space-md, 1rem); }
+.p-6 { padding: var(--space-lg, 1.5rem); }
+.p-8 { padding: var(--space-xl, 2rem); }
+
+.grid {
+  display: grid;
+  gap: var(--space-md, 1rem);
+}
+
+.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+@media (max-width: 768px) {
+  .grid-cols-2,
+  .grid-cols-3 {
+    grid-template-columns: 1fr;
+  }
+}`;
+    
+    return css;
+  }
+
+  // Generate enhanced HTML with design system
+  generateEnhancedHTML(analysis) {
+    const { designSystem, productRequirements } = analysis;
+    const appType = analysis.type || 'general';
+    const appName = productRequirements?.productVision?.valueProposition || 'Generated Application';
+    
+    return `<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${appName}</title>
+    <link rel="stylesheet" href="/styles/design-system.css">
+    <link rel="stylesheet" href="/styles/components.css">
+    <link rel="stylesheet" href="/styles/main.css">
+</head>
+<body>
+    <div class="container">
+        <header class="text-center mt-8 mb-8">
+            <h1>${appName}</h1>
+            <p>Aplicație generată cu design system professional</p>
+        </header>
+        
+        <main>
+            <div class="card">
+                <div class="card-header">
+                    <h2>Bine ai venit!</h2>
+                </div>
+                <div class="card-body">
+                    <p>Această aplicație a fost generată cu colaborarea dintre Product Owner, Designer și DevOps AI Agent.</p>
+                    <div class="mt-4">
+                        <button class="btn btn-primary btn-md">Începe</button>
+                        <button class="btn btn-secondary btn-md">Află mai multe</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="/scripts/components.js"></script>
+    <script src="/scripts/main.js"></script>
+</body>
+</html>`;
+  }
   }
 
   async deployNewApplication(analysis, repoStructure) {
