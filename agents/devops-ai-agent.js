@@ -1131,7 +1131,6 @@ a:hover {
 </body>
 </html>`;
   }
-  }
 
   async deployNewApplication(analysis, repoStructure) {
     try {
