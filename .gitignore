@@ -72,7 +72,7 @@ dist
 
 # Gatsby files
 .cache/
-public
+# Next.js static files moved to separate ignore
 
 # Storybook build outputs
 .out

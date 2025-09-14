@@ -70,7 +70,7 @@ class AppCreator {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ 
-                    request: request,
+                    description: request,
                     timestamp: new Date().toISOString(),
                     client_info: {
                         user_agent: navigator.userAgent,
