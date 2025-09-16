@@ -723,14 +723,71 @@ Configured for Railway.com deployment.
         });
       }
     }
-    return endpoints.length > 0 ? endpoints : [
+    
+    // Generate dynamic endpoints based on analysis if no explicit endpoints found
+    return endpoints.length > 0 ? endpoints : this.generateDynamicEndpoints(analysisResult);
+  }
+
+  // Generate endpoints dynamically based on feature analysis
+  generateDynamicEndpoints(analysis) {
+    const baseEndpoints = [
       { method: "POST", path: "/api/auth/register" },
-      { method: "POST", path: "/api/auth/login" },
-      { method: "GET", path: "/api/todos" },
-      { method: "POST", path: "/api/todos" },
-      { method: "PUT", path: "/api/todos/:id" },
-      { method: "DELETE", path: "/api/todos/:id" }
+      { method: "POST", path: "/api/auth/login" }
     ];
+
+    if (!analysis || !analysis.features) {
+      return baseEndpoints;
+    }
+
+    const dynamicEndpoints = [];
+    
+    // Generate endpoints based on detected features
+    if (analysis.features.includes('data_management')) {
+      const resourceName = this.inferResourceName(analysis);
+      dynamicEndpoints.push(
+        { method: "GET", path: `/api/${resourceName}` },
+        { method: "POST", path: `/api/${resourceName}` },
+        { method: "PUT", path: `/api/${resourceName}/:id` },
+        { method: "DELETE", path: `/api/${resourceName}/:id` }
+      );
+    }
+
+    if (analysis.features.includes('search')) {
+      dynamicEndpoints.push(
+        { method: "GET", path: "/api/search" }
+      );
+    }
+
+    if (analysis.features.includes('file_handling')) {
+      dynamicEndpoints.push(
+        { method: "POST", path: "/api/upload" },
+        { method: "GET", path: "/api/files/:id" }
+      );
+    }
+
+    if (analysis.features.includes('communication')) {
+      dynamicEndpoints.push(
+        { method: "GET", path: "/api/messages" },
+        { method: "POST", path: "/api/messages" }
+      );
+    }
+
+    return [...baseEndpoints, ...dynamicEndpoints];
+  }
+
+  // Infer resource name from analysis category
+  inferResourceName(analysis) {
+    const resourceNames = {
+      'computation': 'calculations',
+      'productivity': 'tasks',
+      'social': 'posts',
+      'ecommerce': 'products',
+      'entertainment': 'content',
+      'utility': 'tools',
+      'information': 'items'
+    };
+
+    return resourceNames[analysis.category] || 'items';
   }
 }
 

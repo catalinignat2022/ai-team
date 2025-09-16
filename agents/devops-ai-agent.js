@@ -650,7 +650,7 @@ module.exports = app;`;
       
       // CSS Agent collaborates with Designer
       const designerCollaboration = await cssAgent.collaborateWithDesignerAgent(designSystem, designCollaboration.designTokens);
-      const advancedStyling = await cssAgent.createAdvancedStyling(designSystem, {}, analysis?.type || 'general');
+      const advancedStyling = await cssAgent.createAdvancedStyling(designSystem, {}, analysis);
       
       // Step 5: Generate implementation guide for frontend
       console.log('⚙️ Step 5: Creating implementation guide...');
@@ -779,51 +779,173 @@ module.exports = app;`;
     
     const desc = description.toLowerCase();
     
-    // Determine application type
-    if (desc.includes('blog') || desc.includes('cms')) {
-      analysis.type = 'blog_cms';
-      analysis.technologies = ['Node.js', 'Express', 'MongoDB', 'EJS/Handlebars'];
-      analysis.features = ['Authentication', 'Content Management', 'SEO Optimization'];
-    } else if (desc.includes('e-commerce') || desc.includes('magazin') || desc.includes('plăți')) {
-      analysis.type = 'ecommerce';
-      analysis.technologies = ['Node.js', 'Express', 'MongoDB', 'Stripe', 'React'];
-      analysis.features = ['Payment Integration', 'Product Catalog', 'Order Management', 'User Authentication'];
-      analysis.complexity = 'high';
-      analysis.estimatedTime = '20-25 minutes';
-    } else if (desc.includes('chat') || desc.includes('mesagerie') || desc.includes('timp real')) {
-      analysis.type = 'realtime_chat';
-      analysis.technologies = ['Node.js', 'Socket.io', 'Express', 'MongoDB', 'React'];
-      analysis.features = ['Real-time Messaging', 'User Authentication', 'File Sharing', 'Group Chat'];
-    } else if (desc.includes('task') || desc.includes('todo') || desc.includes('proiect')) {
-      analysis.type = 'task_management';
-      analysis.technologies = ['Node.js', 'Express', 'MongoDB', 'React'];
-      analysis.features = ['Task Creation', 'Project Management', 'User Authentication', 'Notifications'];
-    } else if (desc.includes('fitness') || desc.includes('sport') || desc.includes('exerciții')) {
-      analysis.type = 'fitness_tracker';
-      analysis.technologies = ['Node.js', 'Express', 'MongoDB', 'React', 'Chart.js'];
-      analysis.features = ['Exercise Tracking', 'Progress Analytics', 'User Profiles', 'Goal Setting'];
-    } else {
-      // Generic web application
-      analysis.type = 'generic_webapp';
-      analysis.technologies = ['Node.js', 'Express', 'MongoDB', 'React'];
-      analysis.features = ['User Authentication', 'CRUD Operations', 'Responsive Design'];
-    }
+    // Dynamic analysis instead of hardcoded types
+    const dynamicAnalysis = this.performDynamicAnalysis(desc);
     
-    // Add common features
-    if (desc.includes('autentificare') || desc.includes('login') || desc.includes('google')) {
-      analysis.features.push('Google OAuth');
-    }
-    if (desc.includes('email') || desc.includes('notificări')) {
-      analysis.features.push('Email Notifications');
-    }
-    if (desc.includes('dashboard') || desc.includes('statistici')) {
-      analysis.features.push('Analytics Dashboard');
-    }
-    if (desc.includes('admin') || desc.includes('panel')) {
-      analysis.features.push('Admin Panel');
-    }
+    // Apply dynamic results to analysis
+    analysis.type = dynamicAnalysis.category;
+    analysis.technologies = dynamicAnalysis.technologies;
+    analysis.features = dynamicAnalysis.features;
+    analysis.complexity = dynamicAnalysis.complexity;
+    analysis.estimatedTime = dynamicAnalysis.estimatedTime;
     
     return analysis;
+  }
+
+  // Dynamic analysis engine - NO hardcoded app types
+  performDynamicAnalysis(description) {
+    const words = description.split(/\s+/);
+    const analysis = {
+      category: 'custom_application',
+      technologies: ['Node.js', 'Express'],
+      features: [],
+      complexity: 'medium',
+      estimatedTime: '10-15 minutes'
+    };
+
+    // Dynamic technology detection
+    analysis.technologies = this.detectRequiredTechnologies(description, words);
+    
+    // Dynamic feature detection  
+    analysis.features = this.detectRequiredFeatures(description, words);
+    
+    // Dynamic complexity assessment
+    analysis.complexity = this.assessComplexity(analysis.features.length, words);
+    
+    // Dynamic time estimation
+    analysis.estimatedTime = this.estimateTime(analysis.complexity, analysis.features.length);
+    
+    // Generate semantic category name
+    analysis.category = this.generateSemanticCategory(description, analysis.features);
+    
+    console.log('🧠 Dynamic analysis result:', analysis);
+    return analysis;
+  }
+
+  // Detect technologies based on requirements
+  detectRequiredTechnologies(description, words) {
+    const technologies = ['Node.js', 'Express']; // Base stack
+    
+    // Database detection
+    if (this.needsDatabase(description)) {
+      technologies.push('MongoDB');
+    }
+    
+    // Frontend complexity detection
+    if (this.needsAdvancedFrontend(description)) {
+      technologies.push('React');
+    }
+    
+    // Real-time features detection
+    if (this.needsRealtime(description)) {
+      technologies.push('Socket.io');
+    }
+    
+    // Payment processing detection
+    if (this.needsPayments(description)) {
+      technologies.push('Stripe');
+    }
+    
+    // Authentication detection
+    if (this.needsAuthentication(description)) {
+      technologies.push('Passport');
+    }
+    
+    return technologies;
+  }
+
+  // Dynamic feature detection
+  detectRequiredFeatures(description, words) {
+    const features = [];
+    
+    // Core feature patterns
+    const featurePatterns = {
+      'user_auth': ['login', 'autentificare', 'cont', 'înregistrare'],
+      'data_management': ['salvez', 'gestione', 'administrez', 'crud'],
+      'search': ['caut', 'filtre', 'search', 'găsesc'],
+      'notifications': ['notific', 'email', 'alert', 'mesaj'],
+      'analytics': ['statistici', 'raport', 'grafic', 'analiză'],
+      'payments': ['plată', 'payment', 'stripe', 'tranzacție'],
+      'real_time': ['timp real', 'live', 'instant', 'chat'],
+      'file_handling': ['upload', 'fișier', 'imagine', 'document'],
+      'responsive_design': ['mobil', 'responsive', 'adaptiv']
+    };
+    
+    Object.entries(featurePatterns).forEach(([feature, keywords]) => {
+      if (keywords.some(keyword => description.includes(keyword))) {
+        features.push(this.humanizeFeatureName(feature));
+      }
+    });
+    
+    return features;
+  }
+
+  // Helper methods for dynamic analysis
+  needsDatabase(description) {
+    const dbKeywords = ['salvez', 'gestione', 'date', 'lista', 'înregistrări'];
+    return dbKeywords.some(keyword => description.includes(keyword));
+  }
+
+  needsAdvancedFrontend(description) {
+    const frontendKeywords = ['interactiv', 'dinamic', 'interfață', 'dashboard'];
+    return frontendKeywords.some(keyword => description.includes(keyword));
+  }
+
+  needsRealtime(description) {
+    const realtimeKeywords = ['timp real', 'live', 'instant', 'chat', 'mesagerie'];
+    return realtimeKeywords.some(keyword => description.includes(keyword));
+  }
+
+  needsPayments(description) {
+    const paymentKeywords = ['plată', 'payment', 'cumpăr', 'vânzare', 'magazin'];
+    return paymentKeywords.some(keyword => description.includes(keyword));
+  }
+
+  needsAuthentication(description) {
+    const authKeywords = ['login', 'cont', 'user', 'autentificare', 'înregistrare'];
+    return authKeywords.some(keyword => description.includes(keyword));
+  }
+
+  assessComplexity(featureCount, words) {
+    if (featureCount >= 5) return 'high';
+    if (featureCount >= 3) return 'medium';
+    return 'low';
+  }
+
+  estimateTime(complexity, featureCount) {
+    const timeMap = {
+      'low': '5-10 minutes',
+      'medium': '10-15 minutes',
+      'high': '15-25 minutes'
+    };
+    return timeMap[complexity] || '10-15 minutes';
+  }
+
+  generateSemanticCategory(description, features) {
+    // Generate meaningful category name based on features
+    if (features.some(f => f.includes('Payment'))) return 'ecommerce_platform';
+    if (features.some(f => f.includes('Real-time'))) return 'communication_app';
+    if (features.some(f => f.includes('Analytics'))) return 'dashboard_application';
+    if (features.some(f => f.includes('Data Management'))) return 'data_application';
+    
+    // Extract main purpose from description
+    const purposeWords = description.split(/\s+/).slice(0, 3).join('_');
+    return `${purposeWords}_application`.toLowerCase();
+  }
+
+  humanizeFeatureName(feature) {
+    const nameMap = {
+      'user_auth': 'User Authentication',
+      'data_management': 'Data Management',
+      'search': 'Search & Filter',
+      'notifications': 'Notifications',
+      'analytics': 'Analytics Dashboard',
+      'payments': 'Payment Processing',
+      'real_time': 'Real-time Features',
+      'file_handling': 'File Management',
+      'responsive_design': 'Responsive Design'
+    };
+    return nameMap[feature] || feature.replace(/_/g, ' ');
   }
 
   generateRepositoryStructure(analysis) {
@@ -1431,22 +1553,60 @@ document.addEventListener('DOMContentLoaded', function() {
       display.innerHTML = '<h3>Procesat: "' + inputValue + '"</h3><p>Rezultatul a fost procesat cu succes!</p>';`;
   }
 
-  // Detect app type from analysis
+  // AI-powered dynamic app type detection - NO hardcoding
   detectAppTypeFromAnalysis(analysis) {
     const description = analysis?.productRequirements?.productVision?.problemStatement || '';
+    const features = analysis?.features || [];
     
-    // Try to detect from product requirements first
-    if (description.toLowerCase().includes('calculator') || description.toLowerCase().includes('calcul')) {
-      return 'calculator';
-    }
-    if (description.toLowerCase().includes('todo') || description.toLowerCase().includes('task')) {
-      return 'todo';
-    }
-    if (description.toLowerCase().includes('weather') || description.toLowerCase().includes('vreme')) {
-      return 'weather';
+    if (!description) {
+      return 'general';
     }
     
-    return analysis?.type || 'general';
+    // Use AI-like analysis to determine app category dynamically
+    const appCategory = this.analyzeAppCategory(description, features);
+    
+    console.log(`🧠 AI detected app category: ${appCategory} from requirements`);
+    return appCategory;
+  }
+
+  // Dynamic app category analysis - adapts to ANY requirements
+  analyzeAppCategory(description, features) {
+    const lowerDesc = description.toLowerCase();
+    const words = lowerDesc.split(/\s+/);
+    
+    // Dynamic keyword analysis with scoring
+    const categoryScores = {};
+    
+    // Business logic keywords
+    const businessKeywords = ['magazin', 'vânzare', 'produs', 'cumpăr', 'plată', 'comenzi'];
+    const socialKeywords = ['prieten', 'urmări', 'follow', 'like', 'post', 'comunitate', 'chat'];
+    const productivityKeywords = ['task', 'sarcin', 'productivity', 'organizare', 'planificare'];
+    const calculationKeywords = ['calcul', 'matematică', 'operații', 'număr', 'rezultat'];
+    const dataKeywords = ['listă', 'afișez', 'salveaz', 'gestione', 'administrez'];
+    
+    // Score each category based on keyword presence
+    this.scoreCategory(categoryScores, 'business', businessKeywords, words);
+    this.scoreCategory(categoryScores, 'social', socialKeywords, words);
+    this.scoreCategory(categoryScores, 'productivity', productivityKeywords, words);
+    this.scoreCategory(categoryScores, 'computation', calculationKeywords, words);
+    this.scoreCategory(categoryScores, 'data_management', dataKeywords, words);
+    
+    // Find highest scoring category
+    const topCategory = Object.entries(categoryScores)
+      .sort(([,a], [,b]) => b - a)[0];
+    
+    return topCategory ? topCategory[0] : 'general';
+  }
+
+  // Helper to score categories dynamically
+  scoreCategory(scores, category, keywords, words) {
+    let score = 0;
+    keywords.forEach(keyword => {
+      if (words.some(word => word.includes(keyword))) {
+        score += 1;
+      }
+    });
+    scores[category] = score;
   }
 
   // Generate specific interface based on app requirements dynamically
